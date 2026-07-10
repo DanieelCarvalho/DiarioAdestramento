@@ -2,6 +2,6 @@
 
 namespace DiarioAdestramento.Repositories.Interfaces;
 
-public interface ILocal : IRepository<Local>
+public interface IRegistroClimaRepository : IRepository<RegistroClima>
 {
 }

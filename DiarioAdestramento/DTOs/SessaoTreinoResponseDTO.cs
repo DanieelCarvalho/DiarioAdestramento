@@ -1,9 +1,10 @@
 ﻿using DiarioAdestramento.Enums;
+using DiarioAdestramento.Models;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace DiarioAdestramento.Models;
+namespace DiarioAdestramento.DTOs;
 
-public class SessaoTreino
+public class SessaoTreinoResponseDTO
 {
     public int Id { get; set; }
 
@@ -16,11 +17,10 @@ public class SessaoTreino
     public TimeSpan HoraFim { get; set; }
     public string? OqueFoiTreinado { get; set; }
     public string? RecomepensasUtilizadas { get; set; }
-    public  TempoResposta? TempoResposta { get; set; }
+    public TempoResposta? TempoResposta { get; set; }
     public string? Obs { get; set; }
-    public ICollection<RegistroClima> RegistrosClima { get; set; } = new List<RegistroClima>();
+    public ICollection<RegistroClima>? RegistrosClima { get; set; } 
 
     [NotMapped]
     public TimeSpan Duracao => HoraFim - HoraInicio;
-
 }

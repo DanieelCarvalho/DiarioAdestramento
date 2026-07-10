@@ -4,9 +4,10 @@ using DiarioAdestramento.Repositories.Interfaces;
 
 namespace DiarioAdestramento.Repositories;
 
-public class RegistroClimaRepository : Repository<RegistroClima>, IRegistroClima
+public class RegistroClimaRepository : Repository<RegistroClima>, IRegistroClimaRepository
 {
     public RegistroClimaRepository(AppDbContext context) : base(context)
     {
     }
+
 }

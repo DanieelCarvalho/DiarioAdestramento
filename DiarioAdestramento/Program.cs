@@ -1,6 +1,7 @@
 using DiarioAdestramento.Context;
 using DiarioAdestramento.Repositories;
 using DiarioAdestramento.Repositories.Interfaces;
+using DiarioAdestramento.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,10 +14,16 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-builder.Services.AddScoped<ILocal, LocalRepository>();
-builder.Services.AddScoped<IRegistroClima, RegistroClimaRepository>();
+builder.Services.AddScoped<ILocalRepository, LocalRepository>();
+builder.Services.AddScoped<IRegistroClimaRepository, RegistroClimaRepository>();
 builder.Services.AddScoped<ISessaoTreinoRepository, SessaoTreinoRepository>();
 builder.Services.AddScoped<ICachorroRepository, CachorroRepository>();
+
+builder.Services.AddHttpClient<IClimaService, OpenMeteoClimaService>(client =>
+{
+    client.BaseAddress = new Uri("https://archive-api.open-meteo.com/");
+    client.Timeout = TimeSpan.FromSeconds(10);
+});
 
 var conectionString = builder.Configuration.GetConnectionString("SqliteConnectionString");
 

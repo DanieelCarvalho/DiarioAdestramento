@@ -4,7 +4,7 @@ using DiarioAdestramento.Repositories.Interfaces;
 
 namespace DiarioAdestramento.Repositories;
 
-public class LocalRepository : Repository<Local>, ILocal
+public class LocalRepository : Repository<Local>, ILocalRepository
 {
     public LocalRepository(AppDbContext context) : base(context)
     {

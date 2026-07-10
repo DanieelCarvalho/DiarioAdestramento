@@ -1,4 +1,6 @@
-﻿namespace DiarioAdestramento.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace DiarioAdestramento.Models;
 
 public class Cachorro
 {
@@ -10,6 +12,7 @@ public class Cachorro
 
     public string? Raca { get; set; }
 
+    [JsonIgnore]
     public ICollection<SessaoTreino>? Sessao { get; set; }
 
 }
