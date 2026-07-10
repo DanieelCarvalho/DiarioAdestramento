@@ -7,7 +7,7 @@ namespace DiarioAdestramento.Repositories;
 
 public class Repository<T> : IRepository<T> where T : class
 {
-    private readonly AppDbContext _context;
+    protected readonly AppDbContext _context;
 
     public Repository(AppDbContext context)
     {

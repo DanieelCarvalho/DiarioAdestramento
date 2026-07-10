@@ -10,12 +10,11 @@ namespace DiarioAdestramento.Repositories;
 public class SessaoTreinoRepository : Repository<SessaoTreino>, ISessaoTreinoRepository
 {
     private readonly IClimaService _climaService;
-    private readonly AppDbContext _contextRepository;
-    public SessaoTreinoRepository(AppDbContext context, IClimaService climaService, AppDbContext contextRepository) 
+    public SessaoTreinoRepository(AppDbContext context, IClimaService climaService) 
         : base(context)
     {
         _climaService = climaService;
-        _contextRepository = contextRepository;
+        
     }
 
     public async Task<SessaoTreino> CriarComClimaAsync(SessaoTreino sessao, Local local)
@@ -37,7 +36,7 @@ public class SessaoTreinoRepository : Repository<SessaoTreino>, ISessaoTreinoRep
             });
         }
 
-     
+        // Busca o clima no fim da sessão
         var dataHoraFim = sessao.Data.Date + sessao.HoraFim;
         var climaFim = await _climaService.ObterClimaHistoricoAsync(
             local.Latitude, local.Longitude, dataHoraFim);
@@ -58,14 +57,14 @@ public class SessaoTreinoRepository : Repository<SessaoTreino>, ISessaoTreinoRep
         return await AddAsync(sessao);
     }
 
-   
+
 
     public async Task<SessaoTreino?> GetComDetalhesAsync(int id)
     {
-       return await _contextRepository.Set<SessaoTreino>()
+        return await _context.Set<SessaoTreino>()
             .Include(s => s.Cachorro)
-            .Include(s => s.RegistrosClima)
             .Include(s => s.Local)
+            .Include(s => s.RegistrosClima)
             .AsNoTracking()
             .FirstOrDefaultAsync(s => s.Id == id);
     }
