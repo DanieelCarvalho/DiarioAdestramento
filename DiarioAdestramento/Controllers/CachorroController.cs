@@ -27,17 +27,27 @@ public class CachorroController : ControllerBase
         return Ok(cachorrosDTO);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<ActionResult<CachorroResponseDTO>> GetById(int id)
     {
         var cachorro = await _cachorroRepository.GetAsync(c => c.Id == id);
-        if (cachorro == null)
-        {
+        if (cachorro is null)
             return NotFound();
-        }
         var cachorroDTO = cachorro.ToCachorroResponseDTO();
+
         return Ok(cachorroDTO);
-    }
+     }
+
+        [HttpGet("{id:int}/sessoes")]
+        public async Task<ActionResult<CachorroComSessoesResponseDTO>> GetByIdComSessoes(int id)
+        {
+            var cachorro = await _cachorroRepository.GetComSessoesAsync(id);
+            if (cachorro is null)
+                return NotFound();
+
+            return Ok(cachorro.ToCachorroComSessoesResponseDTO());
+        }
+    
 
     [HttpPost]
     public async Task<ActionResult<CachorroResponseDTO>> Create(CachorroCreatedDTO cachorroCreatedDTO)

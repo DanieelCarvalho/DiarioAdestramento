@@ -16,7 +16,41 @@ public static  class CachorroDTOMappingExtensions
             Id = cachorro.Id,
             Idade = cachorro.Idade,
             Nome = cachorro.Nome,
-            Raca = cachorro.Raca
+            Raca = cachorro.Raca,
+
+            
+        };
+    }
+
+    public static CachorroComSessoesResponseDTO? ToCachorroComSessoesResponseDTO(this Cachorro cachorro)
+    {
+        if (cachorro is null)
+        {
+            return null;
+        }
+
+        return new CachorroComSessoesResponseDTO
+        {
+            Id = cachorro.Id,
+            Idade = cachorro.Idade,
+            Nome = cachorro.Nome,
+            Raca = cachorro.Raca,
+            Sessoes = cachorro.Sessao?
+                .Select(s => new SessaoResumoDTO
+                {
+                    Id = s.Id,
+                    Data = s.Data,
+                    HoraInicio = s.HoraInicio,
+                    HoraFim = s.HoraFim,
+                    OqueFoiTreinado = s.OqueFoiTreinado,
+                    TempoResposta = s.TempoResposta,
+                    Local = s.Local is null ? null : new LocalResumoDTO
+                    {
+                        Id = s.Local.Id,
+                        Nome = s.Local.Name
+                    }
+                })
+                .ToList() ?? new List<SessaoResumoDTO>()
         };
     }
 
@@ -32,7 +66,9 @@ public static  class CachorroDTOMappingExtensions
             Id = cachorroCreatedDTO.Id,
             Idade = cachorroCreatedDTO.Idade,
             Nome = cachorroCreatedDTO.Nome,
-            Raca = cachorroCreatedDTO.Raca
+            Raca = cachorroCreatedDTO.Raca,
+           
+            
         };
     }
 

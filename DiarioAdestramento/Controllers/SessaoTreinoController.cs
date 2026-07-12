@@ -1,5 +1,6 @@
 ﻿using DiarioAdestramento.Dtos;
 using DiarioAdestramento.DTOs;
+using DiarioAdestramento.DTOs.Mappings;
 using DiarioAdestramento.Models;
 using DiarioAdestramento.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -22,10 +23,10 @@ public class SessaoTreinoController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<SessaoTreino>>> GetAll()
+    public async Task<ActionResult<IEnumerable<SessaoListagemDTO>>> GetAll()
     {
-        var sessoes = await _sessaoTreinoRepository.GetAllAsync();
-        return Ok(sessoes);
+        var sessoes = await _sessaoTreinoRepository.GetAllComDetalhesAsync();
+        return Ok(sessoes.ToSessaoListagemDTOList());
     }
 
     [HttpGet("{id:int}")]
@@ -34,8 +35,9 @@ public class SessaoTreinoController : ControllerBase
         var sessao = await _sessaoTreinoRepository.GetComDetalhesAsync(id);
         if (sessao is null)
             return NotFound();
+        var sessaoDto = sessao.ToSessaoTreinoResponseDTO();
 
-        return Ok(sessao);
+        return Ok(sessaoDto);
     }
 
     [HttpPost]

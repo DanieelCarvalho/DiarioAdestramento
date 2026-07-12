@@ -11,5 +11,7 @@ public interface ISessaoTreinoRepository : IRepository<SessaoTreino>
     
     Task<SessaoTreino?> GetComDetalhesAsync(int id);
 
-   
+    Task<IEnumerable<SessaoTreino>> GetAllComDetalhesAsync();
+
+
 }

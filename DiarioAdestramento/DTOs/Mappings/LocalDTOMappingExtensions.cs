@@ -15,7 +15,7 @@ public static class LocalDTOMappingExtensions
             Name = local.Name,
             Latitude = local.Latitude,
             Longitude = local.Longitude,
-            Sessao = local.Sessao
+          
         };
     }
 
@@ -51,7 +51,7 @@ public static class LocalDTOMappingExtensions
             Name = local.Name,
             Latitude = local.Latitude,
             Longitude = local.Longitude,
-            Sessao = local.Sessao
+          
         };
     }
 
@@ -70,7 +70,7 @@ public static class LocalDTOMappingExtensions
             Name = local.Name,
             Latitude = local.Latitude,
             Longitude = local.Longitude,
-            Sessao = local.Sessao
+          
         };
     }
 

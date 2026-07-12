@@ -68,4 +68,14 @@ public class SessaoTreinoRepository : Repository<SessaoTreino>, ISessaoTreinoRep
             .AsNoTracking()
             .FirstOrDefaultAsync(s => s.Id == id);
     }
+
+    public async Task<IEnumerable<SessaoTreino>> GetAllComDetalhesAsync()
+    {
+        return await _context.Set<SessaoTreino>()
+            .Include(s => s.Cachorro)
+            .Include(s => s.Local)
+            .AsNoTracking()
+            .ToListAsync();
+    }
+
 }

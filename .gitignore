@@ -25,4 +25,6 @@
 
 # Arquivos de configuração de usuário
 appsettings.Development.json
-appsettings.Production.json
+appsettings.Production.json*.db-shm
+*.db-wal
+*.db

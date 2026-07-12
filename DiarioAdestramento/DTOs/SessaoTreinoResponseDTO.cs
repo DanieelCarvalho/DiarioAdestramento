@@ -9,9 +9,9 @@ public class SessaoTreinoResponseDTO
     public int Id { get; set; }
 
     public int CachorroId { get; set; }
-    public Cachorro? Cachorro { get; set; }
+    public CachorroResumoDTO? Cachorro { get; set; }
+    public LocalResumoDTO? Local { get; set; }
     public int LocalId { get; set; }
-    public Local? Local { get; set; }
     public DateTime Data { get; set; }
     public TimeSpan HoraInicio { get; set; }
     public TimeSpan HoraFim { get; set; }
