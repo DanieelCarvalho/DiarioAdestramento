@@ -1,4 +1,5 @@
 using DiarioAdestramento.Context;
+using DiarioAdestramento.Extensions;
 using DiarioAdestramento.Repositories;
 using DiarioAdestramento.Repositories.Interfaces;
 using DiarioAdestramento.Services;
@@ -33,11 +34,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.ConfigureExceptionHandler();
 }
 
 app.UseHttpsRedirection();

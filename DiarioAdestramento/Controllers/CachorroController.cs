@@ -20,6 +20,8 @@ public class CachorroController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<CachorroResponseDTO>>> GetAll()
     {
+
+       
         var cachorros = await _cachorroRepository.GetAllAsync();
       
         var cachorrosDTO = cachorros.ToCachorroResponseDTOList();
