@@ -1,4 +1,7 @@
-﻿namespace DiarioAdestramento.Pagination;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
+
+namespace DiarioAdestramento.Pagination;
 
 public class PagedList<T> : List<T> where T : class
 {
@@ -17,10 +20,14 @@ public class PagedList<T> : List<T> where T : class
         TotalPages = (int)Math.Ceiling(count / (double)pageSize);
         AddRange(items);
     }
-    public static PagedList<T> ToPagedListAsync(IQueryable<T> source, int pageNumber, int pageSize)
+    public static async Task<PagedList<T>> ToPagedListAsync(IQueryable<T> source, int pageNumber, int pageSize)
     {
-        var count = source.Count();
-        var items = source.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+        var count = await source.CountAsync();
+        var items = await source
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
         return new PagedList<T>(items, count, pageNumber, pageSize);
     }
 }

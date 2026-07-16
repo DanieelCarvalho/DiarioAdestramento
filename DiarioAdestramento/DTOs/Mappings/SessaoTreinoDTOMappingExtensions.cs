@@ -15,26 +15,19 @@ public static class SessaoTreinoDTOMappingExtensions
         return new SessaoTreinoResponseDTO
         {
             Id = sessao.Id,
+            Data = sessao.Data,
             CachorroId = sessao.CachorroId,
             LocalId = sessao.LocalId,
-            Cachorro = sessao.Cachorro is null ? null : new CachorroResumoDTO
-            {
-                Id = sessao.Cachorro.Id,
-                Nome = sessao.Cachorro.Nome
-            },
-            Local = sessao.Local is null ? null : new LocalResumoDTO
-            {
-                Id = sessao.Local.Id,
-                Nome = sessao.Local.Name
-            },
-            Data = sessao.Data,
+            NomeCachorro = sessao.Cachorro?.Nome,
+            NomeLocal = sessao.Local?.Name,
             HoraInicio = sessao.HoraInicio,
             HoraFim = sessao.HoraFim,
             OqueFoiTreinado = sessao.OqueFoiTreinado,
             RecomepensasUtilizadas = sessao.RecomepensasUtilizadas,
             TempoResposta = sessao.TempoResposta,
             Obs = sessao.Obs,
-            RegistrosClima = sessao.RegistrosClima
+            RegistrosClima = sessao.RegistrosClima,
+           
         };
     }
 
@@ -59,40 +52,6 @@ public static class SessaoTreinoDTOMappingExtensions
         };
     }
 
-    public static SessaoListagemDTO? ToSessaoListagemDTO(this SessaoTreino sessao)
-    {
-        if (sessao is null)
-        {
-            return null;
-        }
-
-        return new SessaoListagemDTO
-        {
-            Id = sessao.Id,
-            Data = sessao.Data,
-            HoraInicio = sessao.HoraInicio,
-            HoraFim = sessao.HoraFim,
-            OqueFoiTreinado = sessao.OqueFoiTreinado,
-            TempoResposta = sessao.TempoResposta,
-            NomeCachorro = sessao.Cachorro?.Nome,
-            NomeLocal = sessao.Local?.Name
-        };
-    }
-
-    public static IEnumerable<SessaoListagemDTO> ToSessaoListagemDTOList(this IEnumerable<SessaoTreino> sessoes)
-    {
-        if (sessoes is null || !sessoes.Any())
-        {
-            return new List<SessaoListagemDTO>();
-        }
-
-        return sessoes
-            .Select(s => s.ToSessaoListagemDTO())
-            .Where(dto => dto is not null)
-            .Select(dto => dto!)
-            .ToList();
-    }
-
     public static IEnumerable<SessaoTreinoResponseDTO> ToSessaoTreinoResponseDTOList(this IEnumerable<SessaoTreino> sessoes)
     {
         if (sessoes is null || !sessoes.Any())
@@ -106,4 +65,8 @@ public static class SessaoTreinoDTOMappingExtensions
             .Select(dto => dto!)
             .ToList();
     }
+
+   
+       
+    
 }

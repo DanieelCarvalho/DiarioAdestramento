@@ -20,7 +20,7 @@ public static class ApiExceptionMiddlewareExtensions
                     await context.Response.WriteAsync(new ErrorDetails()
                     {
                         StatusCode = context.Response.StatusCode.ToString(),
-                        Message = "Ocorreu um erro interno no servidor.",
+                        Message =  "Ocorreu um erro interno no servidor.",
                         Trace = contextFeature.Error.StackTrace
                     }.ToString());
                 }

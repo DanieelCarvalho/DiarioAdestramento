@@ -26,7 +26,7 @@ public class SessaoTreinoController : ControllerBase
     public async Task<ActionResult<IEnumerable<SessaoListagemDTO>>> GetAll()
     {
         var sessoes = await _sessaoTreinoRepository.GetAllComDetalhesAsync();
-        return Ok(sessoes.ToSessaoListagemDTOList());
+        return Ok(sessoes.ToSessaoTreinoResponseDTOList());
     }
 
     [HttpGet("{id:int}")]
@@ -40,6 +40,13 @@ public class SessaoTreinoController : ControllerBase
         return Ok(sessaoDto);
     }
 
+    [HttpGet("cachorro/{cachorroId:int}")]
+    public async Task<ActionResult<IEnumerable<SessaoListagemDTO>>> GetByCachorroId(int cachorroId)
+    {
+        var sessoes = await _sessaoTreinoRepository.GetSessoesPorCachorroAsync(cachorroId);
+        return Ok(sessoes.ToSessaoTreinoResponseDTOList());
+    }
+
     [HttpPost]
     public async Task<ActionResult<SessaoTreino>> Create(CriarSessaoTreinoDto dto)
     {
@@ -51,24 +58,14 @@ public class SessaoTreinoController : ControllerBase
         if (local is null)
             return BadRequest("Local informado não existe.");
 
-        var sessao = new SessaoTreino
-        {
-            CachorroId = dto.CachorroId,
-            LocalId = dto.LocalId,
-            Data = dto.Data,
-            HoraInicio = dto.HoraInicio,
-            HoraFim = dto.HoraFim,
-            OqueFoiTreinado = dto.OqueFoiTreinado,
-            RecomepensasUtilizadas = dto.RecompensasUtilizadas,
-            TempoResposta = dto.TempoResposta,
-            Obs = dto.Observacoes
-        };
+        var sessao = dto.ToSessaoTreino();
 
-        // É aqui que o clima do início e do fim são buscados e anexados,
-        // antes da sessão ser persistida no banco.
-        var sessaoCriada = await _sessaoTreinoRepository.CriarComClimaAsync(sessao, local);
 
-        return CreatedAtAction(nameof(GetById), new { id = sessaoCriada.Id }, sessaoCriada);
+        await _sessaoTreinoRepository.CriarComClimaAsync(sessao, local);
+
+        var sessaoDto = sessao.ToSessaoTreinoResponseDTO();
+
+        return CreatedAtAction(nameof(GetById), new { id = sessaoDto.Id }, sessaoDto);
     }
 
     [HttpPut("{id:int}")]

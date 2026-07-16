@@ -13,5 +13,7 @@ public interface ISessaoTreinoRepository : IRepository<SessaoTreino>
 
     Task<IEnumerable<SessaoTreino>> GetAllComDetalhesAsync();
 
+    Task<IEnumerable<SessaoTreino>> GetSessoesPorCachorroAsync(int cachorroId);
+
 
 }

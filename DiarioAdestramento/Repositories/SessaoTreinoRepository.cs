@@ -74,8 +74,20 @@ public class SessaoTreinoRepository : Repository<SessaoTreino>, ISessaoTreinoRep
         return await _context.Set<SessaoTreino>()
             .Include(s => s.Cachorro)
             .Include(s => s.Local)
+            .Include(s => s.RegistrosClima)
             .AsNoTracking()
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<SessaoTreino>> GetSessoesPorCachorroAsync(int cachorroId)
+    {
+        return await _context.Set<SessaoTreino>()
+            .Include(s => s.Cachorro)
+            .Include(s => s.Local)
+            .Include(s => s.RegistrosClima)
+            .AsNoTracking()
+            .Where(s => s.CachorroId == cachorroId)     
+            .ToListAsync(); ;
+         
+    }
 }
