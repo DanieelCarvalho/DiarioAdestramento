@@ -13,17 +13,9 @@ public class CachorroRepository : Repository<Cachorro>, ICachorroRepository
     {
     }
 
-    public async Task<PagedList<Cachorro>> GetCachorros(CachorrosParameters cachorrosParameters)
-    {
-        var query = _context.Set<Cachorro>()
-            .AsNoTracking()
-            .OrderBy(c => c.Nome);   
+    public Task<PagedList<Cachorro>> GetCachorrosAsync(CachorrosParameters parametros)
+    => GetPagedAsync(parametros.PageNumber, parametros.PageSize, c => c.Nome);
 
-        return await PagedList<Cachorro>.ToPagedListAsync(
-            query,
-            cachorrosParameters.PageNumber,
-            cachorrosParameters.PageSize);
-    }
-    
- 
+
+
 }

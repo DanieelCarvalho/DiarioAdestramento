@@ -1,8 +1,10 @@
 ﻿using DiarioAdestramento.DTOs;
 using DiarioAdestramento.DTOs.Mappings;
+using DiarioAdestramento.Pagination;
 using DiarioAdestramento.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace DiarioAdestramento.Controllers;
 
@@ -25,6 +27,25 @@ public class CachorroController : ControllerBase
         var cachorros = await _cachorroRepository.GetAllAsync();
       
         var cachorrosDTO = cachorros.ToCachorroResponseDTOList();
+
+        return Ok(cachorrosDTO);
+    }
+    [HttpGet("pagination")]
+    public async Task<ActionResult<IEnumerable<CachorroResponseDTO>>> GetAllWithPagination([FromQuery] CachorrosParameters cachorrosParameters)
+    {
+        var cachorros = await _cachorroRepository.GetCachorrosAsync(cachorrosParameters);
+        var cachorrosDTO = cachorros.ToCachorroResponseDTOList();
+
+        var metadata = new
+        {
+            cachorros.TotalCount,
+            cachorros.PageSize,
+            cachorros.CurrentPage,
+            cachorros.TotalPages,
+            cachorros.HasNext,
+            cachorros.HasPrevious
+        };
+        Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(metadata));
 
         return Ok(cachorrosDTO);
     }

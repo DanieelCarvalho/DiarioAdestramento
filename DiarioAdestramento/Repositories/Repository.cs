@@ -1,6 +1,8 @@
 ﻿using DiarioAdestramento.Context;
+using DiarioAdestramento.Pagination;
 using DiarioAdestramento.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace DiarioAdestramento.Repositories;
@@ -43,10 +45,23 @@ public class Repository<T> : IRepository<T> where T : class
          .FirstOrDefaultAsync(predicate);
     }
 
+    public async Task<PagedList<T>> GetPagedAsync(int pageNumber, 
+                                                  int pageSize, 
+                                                  Expression<Func<T, object>> orderBy)
+    {
+       var query = _context.Set<T>()
+            .AsNoTracking()
+            .OrderBy(orderBy);
+
+        return await PagedList<T>.ToPagedListAsync(query, pageNumber, pageSize);
+    }
+
     public async Task<T> UpdateAsync(T entity)
     {
        _context.Set<T>().Update(entity);
        await _context.SaveChangesAsync();
         return entity;
     }
+
+  
 }

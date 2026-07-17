@@ -7,6 +7,6 @@ public interface ICachorroRepository : IRepository<Cachorro>
 {
   
 
-    Task <PagedList<Cachorro>> GetCachorros(CachorrosParameters cachorrosParameters);
+    Task <PagedList<Cachorro>> GetCachorrosAsync(CachorrosParameters cachorrosParameters);
 
 }
