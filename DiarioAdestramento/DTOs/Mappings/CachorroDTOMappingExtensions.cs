@@ -42,13 +42,15 @@ public static  class CachorroDTOMappingExtensions
                     Data = s.Data,
                     HoraInicio = s.HoraInicio,
                     HoraFim = s.HoraFim,
+                   
                     OqueFoiTreinado = s.OqueFoiTreinado,
                     TempoResposta = s.TempoResposta,
                     Local = s.Local is null ? null : new LocalResumoDTO
                     {
                         Id = s.Local.Id,
-                        Nome = s.Local.Name
+                        Nome = s.Local.Nome
                     }
+                    
                 })
                 .ToList() ?? new List<SessaoResumoDTO>()
         };

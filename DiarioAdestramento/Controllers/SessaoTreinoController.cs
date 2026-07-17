@@ -2,6 +2,7 @@
 using DiarioAdestramento.DTOs;
 using DiarioAdestramento.DTOs.Mappings;
 using DiarioAdestramento.Models;
+using DiarioAdestramento.Repositories;
 using DiarioAdestramento.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,13 +14,16 @@ namespace DiarioAdestramento.Controllers;
 public class SessaoTreinoController : ControllerBase
 {
     private readonly ISessaoTreinoRepository _sessaoTreinoRepository;
+    private readonly ICachorroRepository _cachorroRepository;
     private readonly ILocalRepository _localRepository;
 
     public SessaoTreinoController(ISessaoTreinoRepository sessaoTreinoRepository, 
-                                  ILocalRepository localRepository)
+                                  ILocalRepository localRepository,
+                                  ICachorroRepository cachorroRepository)
     {
         _sessaoTreinoRepository = sessaoTreinoRepository;
         _localRepository = localRepository;
+        _cachorroRepository = cachorroRepository;
     }
 
     [HttpGet]
@@ -40,13 +44,18 @@ public class SessaoTreinoController : ControllerBase
         return Ok(sessaoDto);
     }
 
-    [HttpGet("cachorro/{cachorroId:int}")]
+    [HttpGet("/api/cachorro/{cachorroId:int}/sessoes")]
     public async Task<ActionResult<IEnumerable<SessaoListagemDTO>>> GetByCachorroId(int cachorroId)
     {
-        var sessoes = await _sessaoTreinoRepository.GetSessoesPorCachorroAsync(cachorroId);
-        return Ok(sessoes.ToSessaoTreinoResponseDTOList());
-    }
+        var cachorro = await _cachorroRepository.GetAsync(c => c.Id == cachorroId);
+        if (cachorro is null)
+            return NotFound();
 
+        var sessoes = await _sessaoTreinoRepository.GetSessoesPorCachorroAsync(cachorroId);
+
+        return Ok(cachorro.ToCachorroComSessoesResponseDTO(sessoes));
+    }
+  
     [HttpPost]
     public async Task<ActionResult<SessaoTreino>> Create(CriarSessaoTreinoDto dto)
     {

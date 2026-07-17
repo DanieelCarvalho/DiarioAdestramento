@@ -19,7 +19,7 @@ public static class SessaoTreinoDTOMappingExtensions
             CachorroId = sessao.CachorroId,
             LocalId = sessao.LocalId,
             NomeCachorro = sessao.Cachorro?.Nome,
-            NomeLocal = sessao.Local?.Name,
+            NomeLocal = sessao.Local?.Nome,
             HoraInicio = sessao.HoraInicio,
             HoraFim = sessao.HoraFim,
             OqueFoiTreinado = sessao.OqueFoiTreinado,

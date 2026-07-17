@@ -12,7 +12,7 @@ public static class LocalDTOMappingExtensions
         return new LocalResponseDTO
         {
             Id = local.Id,
-            Name = local.Name,
+            Name = local.Nome,
             Latitude = local.Latitude,
             Longitude = local.Longitude,
           
@@ -25,7 +25,7 @@ public static class LocalDTOMappingExtensions
         return new Local
         {
             Id = localCreatedDTO.Id,
-            Name = localCreatedDTO.Name,
+            Nome = localCreatedDTO.Name,
             Latitude = localCreatedDTO.Latitude,
             Longitude = localCreatedDTO.Longitude
         };
@@ -37,7 +37,7 @@ public static class LocalDTOMappingExtensions
         return new Local
         {
             Id = localUpdateRequestDTO.Id,
-            Name = localUpdateRequestDTO.Name,
+            Nome = localUpdateRequestDTO.Name,
             Latitude = localUpdateRequestDTO.Latitude,
             Longitude = localUpdateRequestDTO.Longitude
         };
@@ -48,7 +48,7 @@ public static class LocalDTOMappingExtensions
         return new LocalResponseDTO
         {
             Id = local.Id,
-            Name = local.Name,
+            Name = local.Nome,
             Latitude = local.Latitude,
             Longitude = local.Longitude,
           
@@ -67,7 +67,7 @@ public static class LocalDTOMappingExtensions
         return new LocalUpdateResponseDTO
         {
             Id = local.Id,
-            Name = local.Name,
+            Name = local.Nome,
             Latitude = local.Latitude,
             Longitude = local.Longitude,
           
@@ -79,7 +79,7 @@ public static class LocalDTOMappingExtensions
         if(local is null) return null;
         return new LocalUpdateRequestDTO
         {
-            Name = local.Name,
+            Name = local.Nome,
             Latitude = local.Latitude,
             Longitude = local.Longitude
         };

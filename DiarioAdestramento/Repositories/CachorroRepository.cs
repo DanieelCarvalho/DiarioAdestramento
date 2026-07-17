@@ -24,16 +24,6 @@ public class CachorroRepository : Repository<Cachorro>, ICachorroRepository
             cachorrosParameters.PageNumber,
             cachorrosParameters.PageSize);
     }
-    public async Task<Cachorro?> GetComSessoesAsync(int id)
-    {
-        return await _context.Set<Cachorro>()
-            .Include(c => c.Sessao)
-                .ThenInclude(s => s.RegistrosClima)
-            .Include(c => c.Sessao)
-                .ThenInclude(s => s.Local)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.Id == id);
-    }
-
+    
  
 }

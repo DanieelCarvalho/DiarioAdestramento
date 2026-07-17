@@ -40,15 +40,15 @@ public class CachorroController : ControllerBase
         return Ok(cachorroDTO);
      }
 
-        [HttpGet("{id:int}/sessoes")]
-        public async Task<ActionResult<CachorroComSessoesResponseDTO>> GetByIdComSessoes(int id)
-        {
-            var cachorro = await _cachorroRepository.GetComSessoesAsync(id);
-            if (cachorro is null)
-                return NotFound();
+        //[HttpGet("{id:int}/sessoes")]
+        //public async Task<ActionResult<CachorroComSessoesResponseDTO>> GetByIdComSessoes(int id)
+        //{
+        //    var cachorro = await _cachorroRepository.GetComSessoesAsync(id);
+        //    if (cachorro is null)
+        //        return NotFound();
 
-            return Ok(cachorro.ToCachorroComSessoesResponseDTO());
-        }
+        //    return Ok(cachorro.ToCachorroComSessoesResponseDTO());
+        //}
     
 
     [HttpPost]

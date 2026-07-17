@@ -82,11 +82,12 @@ public class SessaoTreinoRepository : Repository<SessaoTreino>, ISessaoTreinoRep
     public async Task<IEnumerable<SessaoTreino>> GetSessoesPorCachorroAsync(int cachorroId)
     {
         return await _context.Set<SessaoTreino>()
+            .Where(s => s.CachorroId == cachorroId)     
             .Include(s => s.Cachorro)
             .Include(s => s.Local)
             .Include(s => s.RegistrosClima)
+            .OrderByDescending(s => s.Data)
             .AsNoTracking()
-            .Where(s => s.CachorroId == cachorroId)     
             .ToListAsync(); ;
          
     }
