@@ -4,11 +4,11 @@ using DiarioAdestramento.Extensions.AppServicesExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddApiSwagger()          
-       .AddPersistence()         
+builder.AddApiSwagger()
+       .AddPersistence()
        .AddRepositories()
        .AddExternalServices()
-       .AddControllers();       
+       .AddControllers();
 
 
 var app = builder.Build();
