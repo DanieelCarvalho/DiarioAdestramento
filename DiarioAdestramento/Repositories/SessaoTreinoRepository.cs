@@ -1,6 +1,7 @@
 ﻿using DiarioAdestramento.Context;
 using DiarioAdestramento.Enums;
 using DiarioAdestramento.Models;
+using DiarioAdestramento.Pagination;
 using DiarioAdestramento.Repositories.Interfaces;
 using DiarioAdestramento.Services;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +20,7 @@ public class SessaoTreinoRepository : Repository<SessaoTreino>, ISessaoTreinoRep
 
     public async Task<SessaoTreino> CriarComClimaAsync(SessaoTreino sessao, Local local)
     {
-        // Busca o clima no início da sessão
+    
         var dataHoraInicio = sessao.Data.Date + sessao.HoraInicio;
         var climaInicio = await _climaService.ObterClimaHistoricoAsync(
             local.Latitude, local.Longitude, dataHoraInicio);
@@ -36,7 +37,7 @@ public class SessaoTreinoRepository : Repository<SessaoTreino>, ISessaoTreinoRep
             });
         }
 
-        // Busca o clima no fim da sessão
+     
         var dataHoraFim = sessao.Data.Date + sessao.HoraFim;
         var climaFim = await _climaService.ObterClimaHistoricoAsync(
             local.Latitude, local.Longitude, dataHoraFim);
@@ -69,26 +70,36 @@ public class SessaoTreinoRepository : Repository<SessaoTreino>, ISessaoTreinoRep
             .FirstOrDefaultAsync(s => s.Id == id);
     }
 
-    public async Task<IEnumerable<SessaoTreino>> GetAllComDetalhesAsync()
+    public async Task<PagedList<SessaoTreino>> GetAllComDetalhesAsync(SessoesParameters parametros)
     {
-        return await _context.Set<SessaoTreino>()
+        var query =  _context.Set<SessaoTreino>()
             .Include(s => s.Cachorro)
             .Include(s => s.Local)
             .Include(s => s.RegistrosClima)
-            .AsNoTracking()
-            .ToListAsync();
+            .AsNoTracking();
+
+        return await PagedList<SessaoTreino>.ToPagedListAsync(query, parametros.PageNumber, parametros.PageSize);
+
+
+    }
+    
+
+    public async Task<PagedList<SessaoTreino>> GetPorCachorroAsync(int cachorroId, 
+                                                                   int pageNum, 
+                                                                   int pageSize)
+    {
+        var query = _context.Set<SessaoTreino>()
+          .Where(s => s.CachorroId == cachorroId)
+          .Include(s => s.Cachorro)
+          .Include(s => s.Local)
+          .Include(s => s.RegistrosClima)
+          .OrderByDescending(s => s.Data)
+          .AsNoTracking();
+
+        return await PagedList<SessaoTreino>.ToPagedListAsync(query,
+                                                              pageNum,
+                                                              pageSize);
     }
 
-    public async Task<IEnumerable<SessaoTreino>> GetSessoesPorCachorroAsync(int cachorroId)
-    {
-        return await _context.Set<SessaoTreino>()
-            .Where(s => s.CachorroId == cachorroId)     
-            .Include(s => s.Cachorro)
-            .Include(s => s.Local)
-            .Include(s => s.RegistrosClima)
-            .OrderByDescending(s => s.Data)
-            .AsNoTracking()
-            .ToListAsync(); ;
-         
-    }
+
 }

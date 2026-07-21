@@ -2,10 +2,12 @@
 using DiarioAdestramento.DTOs;
 using DiarioAdestramento.DTOs.Mappings;
 using DiarioAdestramento.Models;
+using DiarioAdestramento.Pagination;
 using DiarioAdestramento.Repositories;
 using DiarioAdestramento.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace DiarioAdestramento.Controllers;
 
@@ -27,10 +29,22 @@ public class SessaoTreinoController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<SessaoListagemDTO>>> GetAll()
+    public async Task<ActionResult<IEnumerable<SessaoListagemDTO>>> GetAll([FromQuery]  SessoesParameters parametros)
     {
-        var sessoes = await _sessaoTreinoRepository.GetAllComDetalhesAsync();
-        return Ok(sessoes.ToSessaoTreinoResponseDTOList());
+        var sessoes = await _sessaoTreinoRepository.GetAllComDetalhesAsync(parametros);
+
+        var sessaoListagemDTOs = sessoes.ToSessaoTreinoResponseDTOList();
+        var metadata = new
+        {
+            sessoes.TotalCount,
+            sessoes.PageSize,
+            sessoes.CurrentPage,
+            sessoes.TotalPages,
+            sessoes.HasNext,
+            sessoes.HasPrevious
+        };
+        Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(metadata));
+        return Ok(sessaoListagemDTOs);
     }
 
     [HttpGet("{id:int}")]
@@ -45,13 +59,26 @@ public class SessaoTreinoController : ControllerBase
     }
 
     [HttpGet("/api/cachorro/{cachorroId:int}/sessoes")]
-    public async Task<ActionResult<IEnumerable<SessaoListagemDTO>>> GetByCachorroId(int cachorroId)
+    public async Task<ActionResult<IEnumerable<SessaoListagemDTO>>> GetByCachorroId(int cachorroId, 
+                                                                                    [FromQuery] SessoesParameters parametros)
     {
         var cachorro = await _cachorroRepository.GetAsync(c => c.Id == cachorroId);
         if (cachorro is null)
             return NotFound();
 
-        var sessoes = await _sessaoTreinoRepository.GetSessoesPorCachorroAsync(cachorroId);
+        var sessoes = await _sessaoTreinoRepository.GetPorCachorroAsync(cachorroId, 
+                                                                        parametros.PageNumber, 
+                                                                        parametros.PageSize);
+        var metadata = new
+        {
+            sessoes.TotalCount,
+            sessoes.PageSize,
+            sessoes.CurrentPage,
+            sessoes.TotalPages,
+            sessoes.HasNext,
+            sessoes.HasPrevious
+        };
+        Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(metadata));
 
         return Ok(cachorro.ToCachorroComSessoesResponseDTO(sessoes));
     }

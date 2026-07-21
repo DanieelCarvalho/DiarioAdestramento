@@ -16,6 +16,4 @@ public class CachorroRepository : Repository<Cachorro>, ICachorroRepository
     public Task<PagedList<Cachorro>> GetCachorrosAsync(CachorrosParameters parametros)
     => GetPagedAsync(parametros.PageNumber, parametros.PageSize, c => c.Nome);
 
-
-
 }

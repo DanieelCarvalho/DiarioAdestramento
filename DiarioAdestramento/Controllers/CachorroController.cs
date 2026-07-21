@@ -34,6 +34,7 @@ public class CachorroController : ControllerBase
     public async Task<ActionResult<IEnumerable<CachorroResponseDTO>>> GetAllWithPagination([FromQuery] CachorrosParameters cachorrosParameters)
     {
         var cachorros = await _cachorroRepository.GetCachorrosAsync(cachorrosParameters);
+
         var cachorrosDTO = cachorros.ToCachorroResponseDTOList();
 
         var metadata = new

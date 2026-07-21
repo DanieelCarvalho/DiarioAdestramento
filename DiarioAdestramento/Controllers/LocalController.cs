@@ -1,6 +1,7 @@
 ﻿using DiarioAdestramento.DTOs;
 using DiarioAdestramento.DTOs.Mappings;
 using DiarioAdestramento.Models;
+using DiarioAdestramento.Pagination;
 using DiarioAdestramento.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -29,6 +30,28 @@ public class LocalController : ControllerBase
         }
         var locaisDTO = locais.ToLocalResponseDTOList();
 
+        return Ok(locaisDTO);
+    }
+
+    [HttpGet("pagination")]
+    public async Task<ActionResult<IEnumerable<LocalResponseDTO>>> GetAllWithPagination([FromQuery] LocalParameters locaisParameters)
+    {
+
+
+        var locais = await _repository.GetLocaisAsync(locaisParameters);
+
+
+        var locaisDTO = locais.ToLocalResponseDTOList();
+        var metadata = new
+        {
+            locais.TotalCount,
+            locais.PageSize,
+            locais.CurrentPage,
+            locais.TotalPages,
+            locais.HasNext,
+            locais.HasPrevious
+        };
+        Response.Headers.Append("X-Pagination", System.Text.Json.JsonSerializer.Serialize(metadata));
         return Ok(locaisDTO);
     }
 
