@@ -1,8 +1,10 @@
-﻿namespace DiarioAdestramento.Enums;
+﻿using System.Text.Json.Serialization;
+
+namespace DiarioAdestramento.Enums;
 
 public enum TempoResposta
 {
-    Exelente,
+    Excelente,
     Bom,
     Regular,
     Ruim

@@ -10,6 +10,7 @@ namespace DiarioAdestramento.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[ApiConventionType(typeof(DefaultApiConventions))]
 public class CachorroController : ControllerBase
 {
     private readonly ICachorroRepository _cachorroRepository;
