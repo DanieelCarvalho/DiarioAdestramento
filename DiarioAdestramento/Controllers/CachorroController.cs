@@ -2,6 +2,7 @@
 using DiarioAdestramento.DTOs.Mappings;
 using DiarioAdestramento.Pagination;
 using DiarioAdestramento.Repositories.Interfaces;
+using DiarioAdestramento.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
@@ -10,80 +11,57 @@ namespace DiarioAdestramento.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[ApiConventionType(typeof(DefaultApiConventions))]
+[Produces("application/json")]
 public class CachorroController : ControllerBase
 {
-    private readonly ICachorroRepository _cachorroRepository;
+    private readonly ICachorroService _cachorroService;
 
-    public CachorroController(ICachorroRepository cachorroRepository)
+    public CachorroController(ICachorroService cachorroService)
     {
-        _cachorroRepository = cachorroRepository;
+        _cachorroService = cachorroService;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<CachorroResponseDTO>>> GetAll()
     {
+        var cachorros = await _cachorroService.GetAllCachorrosAsync();
 
-       
-        var cachorros = await _cachorroRepository.GetAllAsync();
-      
-        var cachorrosDTO = cachorros.ToCachorroResponseDTOList();
-
-        return Ok(cachorrosDTO);
+        return Ok(cachorros);
     }
     [HttpGet("pagination")]
     public async Task<ActionResult<IEnumerable<CachorroResponseDTO>>> GetAllWithPagination([FromQuery] CachorrosParameters cachorrosParameters)
     {
-        var cachorros = await _cachorroRepository.GetCachorrosAsync(cachorrosParameters);
+        var (itens, metadata) = await _cachorroService.GetAllPagination(cachorrosParameters);
 
-        var cachorrosDTO = cachorros.ToCachorroResponseDTOList();
-
-        var metadata = new
-        {
-            cachorros.TotalCount,
-            cachorros.PageSize,
-            cachorros.CurrentPage,
-            cachorros.TotalPages,
-            cachorros.HasNext,
-            cachorros.HasPrevious
-        };
         Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(metadata));
 
-        return Ok(cachorrosDTO);
+        return Ok(itens);
     }
 
     [HttpGet("{id:int}")]
     public async Task<ActionResult<CachorroResponseDTO>> GetById(int id)
     {
-        var cachorro = await _cachorroRepository.GetAsync(c => c.Id == id);
+        if (id <= 0)
+            return BadRequest("ID deve ser um número positivo");
+
+        var cachorro = await _cachorroService.GetCachorroByIdAsync(id);
+
         if (cachorro is null)
-            return NotFound();
-        var cachorroDTO = cachorro.ToCachorroResponseDTO();
+            return NotFound($"Cachorro com ID {id} não foi encontrado");
+       
 
-        return Ok(cachorroDTO);
+        return Ok(cachorro);
      }
-
-        //[HttpGet("{id:int}/sessoes")]
-        //public async Task<ActionResult<CachorroComSessoesResponseDTO>> GetByIdComSessoes(int id)
-        //{
-        //    var cachorro = await _cachorroRepository.GetComSessoesAsync(id);
-        //    if (cachorro is null)
-        //        return NotFound();
-
-        //    return Ok(cachorro.ToCachorroComSessoesResponseDTO());
-        //}
     
 
     [HttpPost]
     public async Task<ActionResult<CachorroResponseDTO>> Create(CachorroCreatedDTO cachorroCreatedDTO)
     {
-        if(cachorroCreatedDTO is null)
-        {
-            return BadRequest();
-        }
-        var cachorro = cachorroCreatedDTO.ToCachorro();
-        await _cachorroRepository.AddAsync(cachorro);
-        var cachorroDTO = cachorro.ToCachorroResponseDTO();
+        if(cachorroCreatedDTO is null) 
+            return BadRequest("Dados inválidos");
+        
+        var cachorroDTO = await _cachorroService.CreateCachorroAsync(cachorroCreatedDTO);
+
         return CreatedAtAction(nameof(GetById), new { id = cachorroDTO.Id }, cachorroDTO);
     }
 
@@ -91,20 +69,16 @@ public class CachorroController : ControllerBase
     public async Task<IActionResult> Update(int id, CachorroCreatedDTO cachorroUpdatedDTO)
     {
         if (id != cachorroUpdatedDTO.Id || id <= 0)
-        {
-            return BadRequest();
-        }
+            return BadRequest("Dados inválidos");
+
         if (cachorroUpdatedDTO is null)
-        {
-            return NotFound();
-        }
+            return BadRequest("Dados para atualização não podem ser nulos");
 
-        var cachorro = cachorroUpdatedDTO.ToCachorro();
+        var cachorroAtualizado = await _cachorroService.UpdateCachorroAsync(cachorroUpdatedDTO);
 
-        var cachorroExiste = await _cachorroRepository.UpdateAsync(cachorro);
-
-        var cachorroAtualizado = cachorroExiste.ToCachorroResponseDTO();
-
+        if (cachorroAtualizado is null)
+            return NotFound($"Cachorro com ID {id} não foi encontrado");
+        
 
         return Ok(cachorroAtualizado);
     }
@@ -112,13 +86,14 @@ public class CachorroController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<ActionResult> Delete(int id)
     {
-        var cachorro = await _cachorroRepository.GetAsync(c => c.Id == id);
-        if (cachorro == null)
-        {
-            return NotFound();
-        }
-       var cachorroExcluido =  await _cachorroRepository.DeleteAsync(cachorro);
-       var cachorroExcluidoDTO = cachorroExcluido.ToCachorroResponseDTO();
+        if (id <= 0)
+            return BadRequest("ID deve ser um número positivo");
+
+        var cachorroExcluidoDTO = await _cachorroService.DeleteCachorroAsync(id);
+
+        if (cachorroExcluidoDTO is null)
+            return NotFound($"Cachorro com ID {id} não foi encontrado");
+
         return Ok(cachorroExcluidoDTO);
     }
 
