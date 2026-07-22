@@ -10,6 +10,7 @@ namespace DiarioAdestramento.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Produces("application/json")]
 public class LocalController : ControllerBase
 {
     private readonly ILocalRepository _repository;

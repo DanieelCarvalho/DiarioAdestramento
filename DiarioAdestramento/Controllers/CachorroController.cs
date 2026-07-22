@@ -10,6 +10,8 @@ namespace DiarioAdestramento.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Produces("application/json")]
+
 public class CachorroController : ControllerBase
 {
     private readonly ICachorroRepository _cachorroRepository;

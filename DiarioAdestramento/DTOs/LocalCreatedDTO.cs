@@ -18,6 +18,9 @@ public class LocalCreatedDTO
     public double Longitude { get; set; }
 
     [Required(ErrorMessage = "O campo TipoDoLocal é obrigatório.")]
+    /// <summary>
+    /// Indica se o local de treino é aberto ou fechado. 0 = Aberto, 1 = Fechado
+    /// </summary>
     public TipoDoLocal? TipoDoLocal { get; set; }
     public string? Obs { get; set; }
 

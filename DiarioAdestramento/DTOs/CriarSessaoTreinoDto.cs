@@ -19,6 +19,8 @@ public class CriarSessaoTreinoDto
     public string OqueFoiTreinado { get; set; } = string.Empty;
     public string? RecompensasUtilizadas { get; set; }
     [Required(ErrorMessage = "O campo TempoResposta é obrigatório.")]
+
+    /// <summary>Tempo de resposta do cão: 0 = Excelente, 1 = Bom, 2 = Regular, 3 = Ruim.</summary>
     public TempoResposta TempoResposta { get; set; }
     public string? Observacoes { get; set; }
 }
