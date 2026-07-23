@@ -53,6 +53,7 @@ public static class ServiceCollectionExtensions
         builder.Services.AddScoped<ISessaoTreinoRepository, SessaoTreinoRepository>();
         builder.Services.AddScoped<ICachorroRepository, CachorroRepository>();
         builder.Services.AddScoped<ICachorroService, CachorroService>();
+        builder.Services.AddScoped<ILocalService, LocalService>();
         return builder;
     }
 

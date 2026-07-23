@@ -42,7 +42,7 @@ public class CachorroController : ControllerBase
     public async Task<ActionResult<CachorroResponseDTO>> GetById(int id)
     {
         if (id <= 0)
-            return BadRequest("ID deve ser um número positivo");
+            return BadRequest("Id inválido");
 
         var cachorro = await _cachorroService.GetCachorroByIdAsync(id);
 
@@ -65,11 +65,11 @@ public class CachorroController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = cachorroDTO.Id }, cachorroDTO);
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, CachorroCreatedDTO cachorroUpdatedDTO)
     {
         if (id != cachorroUpdatedDTO.Id || id <= 0)
-            return BadRequest("Dados inválidos");
+            return BadRequest("Id inválido");
 
         if (cachorroUpdatedDTO is null)
             return BadRequest("Dados para atualização não podem ser nulos");
@@ -83,11 +83,11 @@ public class CachorroController : ControllerBase
         return Ok(cachorroAtualizado);
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public async Task<ActionResult> Delete(int id)
     {
         if (id <= 0)
-            return BadRequest("ID deve ser um número positivo");
+            return BadRequest("Id inválido");
 
         var cachorroExcluidoDTO = await _cachorroService.DeleteCachorroAsync(id);
 
