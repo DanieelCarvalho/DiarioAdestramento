@@ -5,10 +5,6 @@ namespace DiarioAdestramento.Repositories.Interfaces;
 
 public interface ISessaoTreinoRepository : IRepository<SessaoTreino>
 {
-
-   
-    Task<SessaoTreino> CriarComClimaAsync(SessaoTreino sessao, Local local);
-
     
     Task<SessaoTreino?> GetComDetalhesAsync(int id);
 
@@ -16,6 +12,5 @@ public interface ISessaoTreinoRepository : IRepository<SessaoTreino>
 
 
     Task<PagedList<SessaoTreino>> GetPorCachorroAsync(int cachorroId,int pageNum, int pageSize);
-
 
 }

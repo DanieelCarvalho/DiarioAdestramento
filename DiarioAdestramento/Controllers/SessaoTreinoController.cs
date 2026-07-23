@@ -1,11 +1,7 @@
 ﻿using DiarioAdestramento.Dtos;
 using DiarioAdestramento.DTOs;
-using DiarioAdestramento.DTOs.Mappings;
-using DiarioAdestramento.Models;
 using DiarioAdestramento.Pagination;
-using DiarioAdestramento.Repositories;
-using DiarioAdestramento.Repositories.Interfaces;
-using Microsoft.AspNetCore.Http;
+using DiarioAdestramento.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
@@ -16,121 +12,84 @@ namespace DiarioAdestramento.Controllers;
 [Produces("application/json")]
 public class SessaoTreinoController : ControllerBase
 {
-    private readonly ISessaoTreinoRepository _sessaoTreinoRepository;
-    private readonly ICachorroRepository _cachorroRepository;
-    private readonly ILocalRepository _localRepository;
+    private readonly ISessaoTreinoService _sessaoTreinoService;
 
-    public SessaoTreinoController(ISessaoTreinoRepository sessaoTreinoRepository, 
-                                  ILocalRepository localRepository,
-                                  ICachorroRepository cachorroRepository)
+    public SessaoTreinoController(ISessaoTreinoService sessaoTreinoService)
     {
-        _sessaoTreinoRepository = sessaoTreinoRepository;
-        _localRepository = localRepository;
-        _cachorroRepository = cachorroRepository;
+        _sessaoTreinoService = sessaoTreinoService;
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<SessaoListagemDTO>>> GetAll([FromQuery]  SessoesParameters parametros)
+    public async Task<ActionResult<IEnumerable<SessaoTreinoResponseDTO>>> GetAll([FromQuery] SessoesParameters parametros)
     {
-        var sessoes = await _sessaoTreinoRepository.GetAllComDetalhesAsync(parametros);
-
-        var sessaoListagemDTOs = sessoes.ToSessaoTreinoResponseDTOList();
-        var metadata = new
-        {
-            sessoes.TotalCount,
-            sessoes.PageSize,
-            sessoes.CurrentPage,
-            sessoes.TotalPages,
-            sessoes.HasNext,
-            sessoes.HasPrevious
-        };
+        var (itens, metadata) = await _sessaoTreinoService.GetAllSessoesAsync(parametros);
         Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(metadata));
-        return Ok(sessaoListagemDTOs);
+        return Ok(itens);
     }
 
     [HttpGet("{id:int}")]
     public async Task<ActionResult<SessaoTreinoResponseDTO>> GetById(int id)
     {
-        var sessao = await _sessaoTreinoRepository.GetComDetalhesAsync(id);
-        if (sessao is null)
-            return NotFound();
-        var sessaoDto = sessao.ToSessaoTreinoResponseDTO();
+        if (id <= 0)
+            return BadRequest("Id inválido.");
 
-        return Ok(sessaoDto);
+        var sessao = await _sessaoTreinoService.GetSessaoByIdAsync(id);
+        if (sessao is null)
+            return NotFound($"Sessão com ID {id} não foi encontrada.");
+
+        return Ok(sessao);
     }
 
     [HttpGet("/api/cachorro/{cachorroId:int}/sessoes")]
-    public async Task<ActionResult<IEnumerable<SessaoListagemDTO>>> GetByCachorroId(int cachorroId, 
-                                                                                    [FromQuery] SessoesParameters parametros)
+    public async Task<ActionResult<CachorroComSessoesResponseDTO>> GetByCachorroId(
+        int cachorroId, [FromQuery] SessoesParameters parametros)
     {
-        var cachorro = await _cachorroRepository.GetAsync(c => c.Id == cachorroId);
+        var (cachorro, metadata) = await _sessaoTreinoService.GetSessoesByCachorroIdAsync(cachorroId, parametros);
         if (cachorro is null)
-            return NotFound();
+            return NotFound($"Cachorro com ID {cachorroId} não foi encontrado.");
 
-        var sessoes = await _sessaoTreinoRepository.GetPorCachorroAsync(cachorroId, 
-                                                                        parametros.PageNumber, 
-                                                                        parametros.PageSize);
-        var metadata = new
-        {
-            sessoes.TotalCount,
-            sessoes.PageSize,
-            sessoes.CurrentPage,
-            sessoes.TotalPages,
-            sessoes.HasNext,
-            sessoes.HasPrevious
-        };
         Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(metadata));
-
-        return Ok(cachorro.ToCachorroComSessoesResponseDTO(sessoes));
+        return Ok(cachorro);
     }
-  
+
     [HttpPost]
-    public async Task<ActionResult<SessaoTreino>> Create(CriarSessaoTreinoDto dto)
+    public async Task<ActionResult<SessaoTreinoResponseDTO>> Create(CriarSessaoTreinoDto dto)
     {
-        var duracao = dto.HoraFim - dto.HoraInicio;
-        if (duracao.TotalMinutes <= 0 || duracao.TotalMinutes > 60)
-            return BadRequest("A sessão de treino deve ter entre 1 e 60 minutos.");
+        if (dto is null)
+            return BadRequest("Dados inválidos.");
 
-        var local = await _localRepository.GetAsync(l => l.Id == dto.LocalId);
-        if (local is null)
-            return BadRequest("Local informado não existe.");
+        var (sessao, erro) = await _sessaoTreinoService.CreateSessaoAsync(dto);
+        if (erro is not null)
+            return BadRequest(erro);
 
-        var sessao = dto.ToSessaoTreino();
-
-
-        await _sessaoTreinoRepository.CriarComClimaAsync(sessao, local);
-
-        var sessaoDto = sessao.ToSessaoTreinoResponseDTO();
-
-        return CreatedAtAction(nameof(GetById), new { id = sessaoDto.Id }, sessaoDto);
+        return CreatedAtAction(nameof(GetById), new { id = sessao!.Id }, sessao);
     }
 
     [HttpPut("{id:int}")]
-    public async Task<ActionResult<SessaoTreino>> Update(int id, UpdateSessaoTreinoDTO dto)
+    public async Task<ActionResult<SessaoTreinoResponseDTO>> Update(int id, UpdateSessaoTreinoDTO dto)
     {
-        var sessao = await _sessaoTreinoRepository.GetAsync(s => s.Id == id);
-        if (sessao is null)
-            return NotFound();
+        if (id <= 0)
+            return BadRequest("Id inválido.");
+        if (dto is null)
+            return BadRequest("Dados inválidos.");
 
-        // Só os campos "de texto" são editáveis — ver comentário no AtualizarSessaoTreinoDto
-        sessao.OqueFoiTreinado = dto.OqueFoiTreinado;
-        sessao.RecomepensasUtilizadas = dto.RecompensasUtilizadas;
-        sessao.TempoResposta = dto.TempoResposta;
-        sessao.Obs = dto.Observacoes;
+        var sessaoAtualizada = await _sessaoTreinoService.UpdateSessaoAsync(id, dto);
+        if (sessaoAtualizada is null)
+            return NotFound($"Sessão com ID {id} não foi encontrada.");
 
-        var sessaoAtualizada = await _sessaoTreinoRepository.UpdateAsync(sessao);
         return Ok(sessaoAtualizada);
     }
 
     [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<ActionResult<SessaoTreinoResponseDTO>> Delete(int id)
     {
-        var sessao = await _sessaoTreinoRepository.GetAsync(s => s.Id == id);
-        if (sessao is null)
-            return NotFound();
+        if (id <= 0)
+            return BadRequest("Id inválido.");
 
-        await _sessaoTreinoRepository.DeleteAsync(sessao);
-        return NoContent();
+        var sessaoExcluida = await _sessaoTreinoService.DeleteSessaoAsync(id);
+        if (sessaoExcluida is null)
+            return NotFound($"Sessão com ID {id} não foi encontrada.");
+
+        return Ok(sessaoExcluida);
     }
-
 }

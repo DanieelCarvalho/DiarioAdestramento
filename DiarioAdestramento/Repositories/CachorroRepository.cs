@@ -15,15 +15,16 @@ public class CachorroRepository : Repository<Cachorro>, ICachorroRepository
 
     public  Task<PagedList<Cachorro>> GetCachorroFiltroNome(CachorroFiltroNome nome)
     {
-        var cachorro =  GetAllAsync().AsQueryable();
+        //var cachorro =  GetAllAsync().AsQueryable();
 
-        if(!string.IsNullOrEmpty(nome.Nome))
-        {
-            cachorro = cachorro.Where(c => c.Nome.Contains(nome.Nome));
-        }
-        var cachorroFiltrados = PagedList<Cachorro>.ToPagedListAsync(cachorro, nome.PageNumber, nome.PageSize);
+        //if(!string.IsNullOrEmpty(nome.Nome))
+        //{
+        //    cachorro = cachorro.Where(c => c.Nome.Contains(nome.Nome));
+        //}
+        //var cachorroFiltrados = PagedList<Cachorro>.ToPagedListAsync(cachorro, nome.PageNumber, nome.PageSize);
 
-        return cachorroFiltrados;
+        //return cachorroFiltrados;
+        throw new NotImplementedException();
     }
 
     public Task<PagedList<Cachorro>> GetCachorrosAsync(CachorrosParameters parametros)
