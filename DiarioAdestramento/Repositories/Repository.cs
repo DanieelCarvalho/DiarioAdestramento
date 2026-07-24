@@ -15,28 +15,19 @@ public class Repository<T> : IRepository<T> where T : class
     {
         _context = context;
     }
-
-    public async Task<T> AddAsync(T entity)
-    {
-        _context.Set<T>().Add(entity);
-        await _context.SaveChangesAsync();
-        return entity;
-    }
-
-    public async Task<T> DeleteAsync(T entity)
-    {
-       _context.Set<T>().Remove(entity);
-        await _context.SaveChangesAsync();
-        return entity;
-    }
-
     public async Task<IEnumerable<T>> GetAllAsync()
     {
-       return await _context.Set<T>()
-         .AsNoTracking()
-         .ToListAsync();
-       
+        return await _context.Set<T>()
+          .AsNoTracking()
+          .ToListAsync();
+
     }
+    public IQueryable<T> GetAllQueryable()
+    {
+        return _context.Set<T>().AsNoTracking().AsQueryable();
+
+    }
+
 
     public async Task<T?> GetAsync(Expression<Func<T, bool>> predicate)
     {
@@ -45,23 +36,35 @@ public class Repository<T> : IRepository<T> where T : class
          .FirstOrDefaultAsync(predicate);
     }
 
-    public async Task<PagedList<T>> GetPagedAsync(int pageNumber, 
-                                                  int pageSize, 
+    public async Task<PagedList<T>> GetPagedAsync(int pageNumber,
+                                                  int pageSize,
                                                   Expression<Func<T, object>> orderBy)
     {
-       var query = _context.Set<T>()
-            .AsNoTracking()
-            .OrderBy(orderBy);
+        var query = _context.Set<T>()
+             .AsNoTracking()
+             .OrderBy(orderBy);
 
         return await PagedList<T>.ToPagedListAsync(query, pageNumber, pageSize);
     }
+
+    public async Task<T> AddAsync(T entity)
+    {
+        _context.Set<T>().Add(entity);
+        await _context.SaveChangesAsync();
+        return entity;
+    }
+
 
     public async Task<T> UpdateAsync(T entity)
     {
        _context.Set<T>().Update(entity);
        await _context.SaveChangesAsync();
         return entity;
+    } 
+    public async Task<T> DeleteAsync(T entity)
+    {
+       _context.Set<T>().Remove(entity);
+        await _context.SaveChangesAsync();
+        return entity;
     }
-
-  
 }

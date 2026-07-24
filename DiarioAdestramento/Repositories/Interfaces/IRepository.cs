@@ -6,6 +6,8 @@ namespace DiarioAdestramento.Repositories.Interfaces;
 public interface  IRepository<T> where T : class
 {
     Task<IEnumerable<T>> GetAllAsync();
+    IQueryable<T> GetAllQueryable();
+
     Task<T?> GetAsync(Expression<Func<T, bool>> predicate);
 
     Task<PagedList<T>> GetPagedAsync(int pageNumber, 

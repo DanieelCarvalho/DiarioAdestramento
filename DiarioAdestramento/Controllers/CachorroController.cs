@@ -28,6 +28,9 @@ public class CachorroController : ControllerBase
 
         return Ok(cachorros);
     }
+
+ 
+
     [HttpGet("pagination")]
     public async Task<ActionResult<IEnumerable<CachorroResponseDTO>>> GetAllWithPagination([FromQuery] CachorrosParameters cachorrosParameters)
     {

@@ -2,4 +2,5 @@
 
 public class CachorrosParameters : QueryStringParameters
 {
+    public string? Nome { get; set; }
 }
