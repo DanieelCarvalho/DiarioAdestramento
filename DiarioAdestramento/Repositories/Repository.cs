@@ -36,16 +36,6 @@ public class Repository<T> : IRepository<T> where T : class
          .FirstOrDefaultAsync(predicate);
     }
 
-    public async Task<PagedList<T>> GetPagedAsync(int pageNumber,
-                                                  int pageSize,
-                                                  Expression<Func<T, object>> orderBy)
-    {
-        var query = _context.Set<T>()
-             .AsNoTracking()
-             .OrderBy(orderBy);
-
-        return await PagedList<T>.ToPagedListAsync(query, pageNumber, pageSize);
-    }
 
     public async Task<T> AddAsync(T entity)
     {
