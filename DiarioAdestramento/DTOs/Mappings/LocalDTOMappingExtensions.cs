@@ -15,7 +15,9 @@ public static class LocalDTOMappingExtensions
             Name = local.Nome,
             Latitude = local.Latitude,
             Longitude = local.Longitude,
-          
+            TipoDoLocal = local.TipoDoLocal,
+
+
         };
     }
 
@@ -27,7 +29,9 @@ public static class LocalDTOMappingExtensions
             Id = localCreatedDTO.Id,
             Nome = localCreatedDTO.Name,
             Latitude = localCreatedDTO.Latitude,
-            Longitude = localCreatedDTO.Longitude
+            Longitude = localCreatedDTO.Longitude,
+            TipoDoLocal = localCreatedDTO.TipoDoLocal,
+            
         };
     }
 
@@ -51,6 +55,7 @@ public static class LocalDTOMappingExtensions
             Name = local.Nome,
             Latitude = local.Latitude,
             Longitude = local.Longitude,
+            TipoDoLocal = local.TipoDoLocal
           
         };
     }
@@ -70,6 +75,7 @@ public static class LocalDTOMappingExtensions
             Name = local.Nome,
             Latitude = local.Latitude,
             Longitude = local.Longitude,
+            TipoDoLocal = local.TipoDoLocal
           
         };
     }
@@ -81,7 +87,8 @@ public static class LocalDTOMappingExtensions
         {
             Name = local.Nome,
             Latitude = local.Latitude,
-            Longitude = local.Longitude
+            Longitude = local.Longitude,
+            
         };
     }
 

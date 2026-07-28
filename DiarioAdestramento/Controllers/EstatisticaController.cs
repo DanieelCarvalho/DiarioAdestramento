@@ -1,5 +1,6 @@
-﻿// Controllers/EstatisticaController.cs
-using DiarioAdestramento.DTOs;
+﻿using DiarioAdestramento.DTOs;
+using DiarioAdestramento.DTOs.Estatisticas;
+using DiarioAdestramento.Repositories;
 using DiarioAdestramento.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,9 +19,13 @@ public class EstatisticaController : ControllerBase
     public async Task<ActionResult<IEnumerable<DesempenhoPorClimaDTO>>> GetPorClima(int cachorroId)
         => Ok(await _repository.GetDesempenhoPorClimaAsync(cachorroId));
 
-    //[HttpGet("cachorro/{cachorroId:int}/local")]
-    //public async Task<ActionResult<IEnumerable<DesempenhoPorLocalDTO>>> GetPorLocal(int cachorroId)
-    //    => Ok(await _estatisticaService.GetDesempenhoPorLocalAsync(cachorroId));
+    [HttpGet("cachorro/{cachorroId:int}/local")]
+    public async Task<ActionResult<IEnumerable<DesempenhoPorLocalDTO>>> GetPorLocal(int cachorroId)
+    {
+        var resultado = await _repository.GetDesempenhoPorLocalAsync(cachorroId);
+        return Ok(resultado);
+    }
+
 
     [HttpGet("cachorro/{cachorroId:int}/comando/{comando}")]
     public async Task<ActionResult<IEnumerable<EvolucaoComandoDTO>>> GetPorComando(int cachorroId, string comando)

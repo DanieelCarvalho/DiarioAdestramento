@@ -1,6 +1,8 @@
 ﻿using DiarioAdestramento.Context;
 using DiarioAdestramento.DTOs;
+using DiarioAdestramento.DTOs.Estatisticas;
 using DiarioAdestramento.Enums;
+using DiarioAdestramento.Models;
 using DiarioAdestramento.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -35,8 +37,38 @@ public class EstatisticaRepository : IEstatisticaRepository
         return resultado;
     }
 
-    public Task<IEnumerable<EvolucaoComandoDTO>> GetEvolucaoPorComandoAsync(int cachorroId, string comando)
+    public async Task<IEnumerable<DesempenhoPorLocalDTO>> GetDesempenhoPorLocalAsync(int cachorroId)
     {
-        throw new NotImplementedException();
+        return await _context.Set<SessaoTreino>()
+            .Where(s => s.CachorroId == cachorroId)
+            .GroupBy(s => new { s.Local!.Nome, s.Local!.TipoDoLocal })
+            .Select(g => new DesempenhoPorLocalDTO
+            {
+                NomeLocal = g.Key.Nome,
+                TipoDoLocal = g.Key.TipoDoLocal,
+                TotalSessoes = g.Count(),
+                PercentualExcelente = g.Count(s => s.TempoResposta == TempoResposta.Excelente) * 100.0 / g.Count(),
+                PercentualBom = g.Count(s => s.TempoResposta == TempoResposta.Bom) * 100.0 / g.Count(),
+                PercentualRegular = g.Count(s => s.TempoResposta == TempoResposta.Regular) * 100.0 / g.Count(),
+                PercentualRuim = g.Count(s => s.TempoResposta == TempoResposta.Ruim) * 100.0 / g.Count(),
+
+
+            })
+            .ToListAsync();
     }
+
+
+    public async Task<IEnumerable<EvolucaoComandoDTO>> GetEvolucaoPorComandoAsync(int cachorroId, string comando)
+    {
+        return await _context.Set<SessaoTreino>()
+            .Where(s => s.CachorroId == cachorroId && s.OqueFoiTreinado == comando)
+            .OrderBy(s => s.Data)
+            .Select(s => new EvolucaoComandoDTO
+            {
+                Data = s.Data,
+                TempoResposta = s.TempoResposta
+            })
+            .ToListAsync();
+    }
+
 }

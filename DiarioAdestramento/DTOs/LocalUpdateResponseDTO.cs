@@ -1,4 +1,5 @@
-﻿using DiarioAdestramento.Models;
+﻿using DiarioAdestramento.Enums;
+using DiarioAdestramento.Models;
 
 namespace DiarioAdestramento.DTOs;
 
@@ -8,5 +9,7 @@ public class LocalUpdateResponseDTO
     public string Name { get; set; } = string.Empty;
     public double Latitude { get; set; }
     public double Longitude { get; set; }
-   
+
+    public TipoDoLocal? TipoDoLocal { get; set; }
+
 }
