@@ -17,6 +17,30 @@ public static class ServiceCollectionExtensions
     {
         builder.Services.AddSwaggerGen(options =>
         {
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+            {
+                Name = "Authorization",
+                Type = SecuritySchemeType.ApiKey,
+                Scheme = "Bearer",
+                BearerFormat = "Token",
+                In = ParameterLocation.Header,
+                Description = "Token Access",
+
+            });
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type= ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    new string[] {}
+                }
+            });
             options.SwaggerDoc("v1", new OpenApiInfo
             {
                 Title = "Diário de Adestramento API",
@@ -71,6 +95,10 @@ public static class ServiceCollectionExtensions
     public static WebApplicationBuilder AddControllers(this WebApplicationBuilder builder)
     {
         builder.Services.AddControllers();
+        builder.Services.AddAuthentication()
+                        .AddBearerToken();
+
+        builder.Services.AddAuthorization();
         return builder;
     }
 

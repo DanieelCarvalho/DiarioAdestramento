@@ -3,8 +3,10 @@ using DiarioAdestramento.DTOs.Mappings;
 using DiarioAdestramento.Pagination;
 using DiarioAdestramento.Repositories.Interfaces;
 using DiarioAdestramento.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 
 namespace DiarioAdestramento.Controllers;
@@ -22,6 +24,7 @@ public class CachorroController : ControllerBase
     }
 
     [HttpGet]
+    
     public async Task<ActionResult<IEnumerable<CachorroResponseDTO>>> GetAll()
     {
         var cachorros = await _cachorroService.GetAllCachorrosAsync();
