@@ -3,6 +3,7 @@ using DiarioAdestramento.Repositories;
 using DiarioAdestramento.Repositories.Interfaces;
 using DiarioAdestramento.Services;
 using DiarioAdestramento.Services.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
@@ -66,6 +67,11 @@ public static class ServiceCollectionExtensions
         var conectionString = builder.Configuration.GetConnectionString("SqliteConnectionString");
         builder.Services.AddDbContext<AppDbContext>(options =>
               options.UseSqlite(conectionString));
+
+        builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+                        .AddEntityFrameworkStores<AppDbContext>()
+                        .AddDefaultTokenProviders();
+
         return builder;
     }
 
@@ -97,6 +103,7 @@ public static class ServiceCollectionExtensions
         builder.Services.AddControllers();
         builder.Services.AddAuthentication()
                         .AddBearerToken();
+
 
         builder.Services.AddAuthorization();
         return builder;
