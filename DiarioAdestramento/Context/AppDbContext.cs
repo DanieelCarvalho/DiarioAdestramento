@@ -6,7 +6,6 @@ namespace DiarioAdestramento.Context;
 
 public class AppDbContext : IdentityDbContext
 {
-
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
@@ -14,6 +13,4 @@ public class AppDbContext : IdentityDbContext
     public DbSet<Local> Locais { get; set; } = null!;
     public DbSet<SessaoTreino> SessoesTreino { get; set; } = null!;
     public DbSet<RegistroClima> RegistrosClima { get; set; } = null!;
-
-
 }

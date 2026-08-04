@@ -18,6 +18,18 @@ public static class ServiceCollectionExtensions
     {
         builder.Services.AddSwaggerGen(options =>
         {
+            options.SwaggerDoc("v1", new OpenApiInfo
+            {
+                Title = "Diário de Adestramento API",
+                Version = "v1",
+                Description = "API para gerenciamento do diário de adestramento de cães.",
+                Contact = new OpenApiContact
+                {
+                    Name = "Daniel Carvalho",
+                    Email = "danielcarvalhocode@gmail.com",
+                    Url = new Uri("https://www.linkedin.com/in/daniel-carvalho-dev/")
+                }
+            });
             options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
             {
                 Name = "Authorization",
@@ -26,7 +38,6 @@ public static class ServiceCollectionExtensions
                 BearerFormat = "Token",
                 In = ParameterLocation.Header,
                 Description = "Token Access",
-
             });
             options.AddSecurityRequirement(new OpenApiSecurityRequirement
             {
@@ -42,23 +53,11 @@ public static class ServiceCollectionExtensions
                     new string[] {}
                 }
             });
-            options.SwaggerDoc("v1", new OpenApiInfo
-            {
-                Title = "Diário de Adestramento API",
-                Version = "v1",
-                Description = "API para gerenciamento do diário de adestramento de cães.",
-                Contact = new OpenApiContact
-                {
-                    Name = "Daniel Carvalho",
-                    Email = "danielcarvalhocode@gmail.com",
-                    Url = new Uri("https://www.linkedin.com/in/daniel-carvalho-dev/")
-                }
-            });
+           
 
             var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
         });
-
         return builder;
     }
 
@@ -68,9 +67,12 @@ public static class ServiceCollectionExtensions
         builder.Services.AddDbContext<AppDbContext>(options =>
               options.UseSqlite(conectionString));
 
-        builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+        builder.Services.AddIdentityCore<IdentityUser>()
                         .AddEntityFrameworkStores<AppDbContext>()
-                        .AddDefaultTokenProviders();
+                        .AddApiEndpoints();
+
+        builder.Services.AddAuthentication(IdentityConstants.BearerScheme)
+                        .AddBearerToken(IdentityConstants.BearerScheme);
 
         return builder;
     }
@@ -101,13 +103,7 @@ public static class ServiceCollectionExtensions
     public static WebApplicationBuilder AddControllers(this WebApplicationBuilder builder)
     {
         builder.Services.AddControllers();
-        builder.Services.AddAuthentication()
-                        .AddBearerToken();
-
-
-        builder.Services.AddAuthorization();
+  
         return builder;
     }
-
-
 }
