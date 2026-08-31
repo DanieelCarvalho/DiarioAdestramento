@@ -15,10 +15,13 @@ public class CachorroRepository : Repository<Cachorro>, ICachorroRepository
 
    
 
-    public Task<PagedList<Cachorro>> GetCachorrosAsync(CachorrosParameters parametros)
+    public Task<PagedList<Cachorro>> GetCachorrosAsync(CachorrosParameters parametros, string adestradorId)
     {
 
-        var query = _context.Set<Cachorro>().AsNoTracking().AsQueryable();
+        var query = _context.Set<Cachorro>()
+            .AsNoTracking()
+            .AsQueryable()
+            .Where(c => c.AdestradorId == adestradorId);
 
         if (!string.IsNullOrEmpty(parametros.Nome))
         {
@@ -31,6 +34,21 @@ public class CachorroRepository : Repository<Cachorro>, ICachorroRepository
 
         return PagedList<Cachorro>.ToPagedListAsync(query, parametros.PageNumber, parametros.PageSize);
     }
-   
 
+    public async Task<Cachorro?> GetPorIdEAdestradorAsync(int id, string adestradorId)
+    {
+        return await _context.Set<Cachorro>()
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Id == id && c.AdestradorId == adestradorId);
+    }
+
+    public async Task<IEnumerable<Cachorro>> GetTodosDoAdestradorAsync(string adestradorId)
+    {
+        return await _context.Set<Cachorro>()
+            .Where(c => c.AdestradorId == adestradorId)
+            .AsNoTracking()
+            .ToListAsync();
+    }
 }
+
+    

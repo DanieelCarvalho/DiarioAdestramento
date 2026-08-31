@@ -16,18 +16,19 @@ public class CachorroService : ICachorroService
     {
         _cachorroRepository = cachorroRepository;
     }
-    public async Task<IEnumerable<CachorroResponseDTO>> GetAllCachorrosAsync()
+    public async Task<IEnumerable<CachorroResponseDTO>> GetAllCachorrosAsync(string adestradorId)
     {
-        var cachorros = await _cachorroRepository.GetAllAsync();
-
-        var cachorrosDTO = cachorros.ToCachorroResponseDTOList();
-        return cachorrosDTO;
+        var cachorros = await _cachorroRepository.GetTodosDoAdestradorAsync(adestradorId);
+        return cachorros.ToCachorroResponseDTOList();
     }
 
-    public async Task<(IEnumerable<CachorroResponseDTO> items, PaginationMetadata metadata)> GetAllPagination(CachorrosParameters parametros)
+
+    public async Task<(IEnumerable<CachorroResponseDTO> items, PaginationMetadata metadata)> GetAllPagination(
+      CachorrosParameters parametros, string adestradorId)
     {
-        var cachorros = await _cachorroRepository.GetCachorrosAsync(parametros);
+        var cachorros = await _cachorroRepository.GetCachorrosAsync(parametros, adestradorId);
         var cachorrosDTO = cachorros.ToCachorroResponseDTOList();
+
         var metadata = new PaginationMetadata
         {
             TotalCount = cachorros.TotalCount,
@@ -41,49 +42,51 @@ public class CachorroService : ICachorroService
         return (cachorrosDTO, metadata);
     }
 
-    public async Task<CachorroResponseDTO?> GetCachorroByIdAsync(int id)
+    public async Task<CachorroResponseDTO?> GetCachorroByIdAsync(int id, string adestradorId)
     {
-        var cachorro = await _cachorroRepository.GetAsync(c => c.Id == id);
-
+        var cachorro = await _cachorroRepository.GetPorIdEAdestradorAsync(id, adestradorId);
         if (cachorro is null)
             return null;
 
         return cachorro.ToCachorroResponseDTO();
     }
 
-    public async Task<CachorroResponseDTO> CreateCachorroAsync(CachorroCreatedDTO cachorroCreatedDTO)
+
+    public async Task<CachorroResponseDTO> CreateCachorroAsync(CachorroCreatedDTO cachorroCreatedDTO, string adestradorId)
     {
         var cachorro = cachorroCreatedDTO.ToCachorro();
+        cachorro.AdestradorId = adestradorId; 
 
         await _cachorroRepository.AddAsync(cachorro);
 
-        var cachorroDTO = cachorro.ToCachorroResponseDTO();
-
-        return cachorroDTO;
+        return cachorro.ToCachorroResponseDTO();
     }
 
-    public async Task<CachorroResponseDTO?> UpdateCachorroAsync(CachorroCreatedDTO cachorroUpdatedDTO)
+
+    public async Task<CachorroResponseDTO?> UpdateCachorroAsync(CachorroCreatedDTO cachorroUpdatedDTO, string adestradorId)
     {
+        var cachorroExistente = await _cachorroRepository.GetPorIdEAdestradorAsync(cachorroUpdatedDTO.Id, adestradorId);
+        if (cachorroExistente is null)
+            return null;
+
         var cachorro = cachorroUpdatedDTO.ToCachorro();
+        cachorro.AdestradorId = adestradorId; 
 
-        var cachorroExiste = await _cachorroRepository.UpdateAsync(cachorro);
-
-        var cachorroAtualizado = cachorroExiste.ToCachorroResponseDTO();
-
-        return cachorroAtualizado;
+        var cachorroAtualizado = await _cachorroRepository.UpdateAsync(cachorro);
+        return cachorroAtualizado.ToCachorroResponseDTO();
     }
 
-    public async Task<CachorroResponseDTO?> DeleteCachorroAsync(int id)
-    {
-        var cachorro = await _cachorroRepository.GetAsync(c => c.Id == id);
 
+    public async Task<CachorroResponseDTO?> DeleteCachorroAsync(int id, string adestradorId)
+    {
+        var cachorro = await _cachorroRepository.GetPorIdEAdestradorAsync(id, adestradorId);
         if (cachorro is null)
             return null;
 
         var cachorroExcluido = await _cachorroRepository.DeleteAsync(cachorro);
-
         return cachorroExcluido.ToCachorroResponseDTO();
     }
+
 
 
 }

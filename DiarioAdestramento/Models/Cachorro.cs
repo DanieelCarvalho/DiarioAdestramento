@@ -12,6 +12,8 @@ public class Cachorro
 
     public string? Raca { get; set; }
 
+    public string AdestradorId { get; set; } = string.Empty;
+
     [JsonIgnore]
     public ICollection<SessaoTreino>? Sessao { get; set; }
 
