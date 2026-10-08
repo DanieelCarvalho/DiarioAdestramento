@@ -1,12 +1,15 @@
-﻿using DiarioAdestramento.Dtos;
+﻿using System.Security.Claims;
+using DiarioAdestramento.Dtos;
 using DiarioAdestramento.DTOs;
 using DiarioAdestramento.Pagination;
 using DiarioAdestramento.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
 namespace DiarioAdestramento.Controllers;
 
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 [Produces("application/json")]
@@ -19,10 +22,12 @@ public class SessaoTreinoController : ControllerBase
         _sessaoTreinoService = sessaoTreinoService;
     }
 
+    private string AdestradorId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
     [HttpGet]
     public async Task<ActionResult<IEnumerable<SessaoTreinoResponseDTO>>> GetAll([FromQuery] SessoesParameters parametros)
     {
-        var (itens, metadata) = await _sessaoTreinoService.GetAllSessoesAsync(parametros);
+        var (itens, metadata) = await _sessaoTreinoService.GetAllSessoesAsync(parametros, AdestradorId);
         Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(metadata));
         return Ok(itens);
     }
@@ -33,7 +38,7 @@ public class SessaoTreinoController : ControllerBase
         if (id <= 0)
             return BadRequest("Id inválido.");
 
-        var sessao = await _sessaoTreinoService.GetSessaoByIdAsync(id);
+        var sessao = await _sessaoTreinoService.GetSessaoByIdAsync(id, AdestradorId);
         if (sessao is null)
             return NotFound($"Sessão com ID {id} não foi encontrada.");
 
@@ -44,7 +49,7 @@ public class SessaoTreinoController : ControllerBase
     public async Task<ActionResult<CachorroComSessoesResponseDTO>> GetByCachorroId(
         int cachorroId, [FromQuery] SessoesParameters parametros)
     {
-        var (cachorro, metadata) = await _sessaoTreinoService.GetSessoesByCachorroIdAsync(cachorroId, parametros);
+        var (cachorro, metadata) = await _sessaoTreinoService.GetSessoesByCachorroIdAsync(cachorroId, parametros, AdestradorId);
         if (cachorro is null)
             return NotFound($"Cachorro com ID {cachorroId} não foi encontrado.");
 
@@ -58,7 +63,7 @@ public class SessaoTreinoController : ControllerBase
         if (dto is null)
             return BadRequest("Dados inválidos.");
 
-        var (sessao, erro) = await _sessaoTreinoService.CreateSessaoAsync(dto);
+        var (sessao, erro) = await _sessaoTreinoService.CreateSessaoAsync(dto, AdestradorId);
         if (erro is not null)
             return BadRequest(erro);
 
@@ -73,7 +78,7 @@ public class SessaoTreinoController : ControllerBase
         if (dto is null)
             return BadRequest("Dados inválidos.");
 
-        var sessaoAtualizada = await _sessaoTreinoService.UpdateSessaoAsync(id, dto);
+        var sessaoAtualizada = await _sessaoTreinoService.UpdateSessaoAsync(id, dto, AdestradorId);
         if (sessaoAtualizada is null)
             return NotFound($"Sessão com ID {id} não foi encontrada.");
 
@@ -86,7 +91,7 @@ public class SessaoTreinoController : ControllerBase
         if (id <= 0)
             return BadRequest("Id inválido.");
 
-        var sessaoExcluida = await _sessaoTreinoService.DeleteSessaoAsync(id);
+        var sessaoExcluida = await _sessaoTreinoService.DeleteSessaoAsync(id, AdestradorId);
         if (sessaoExcluida is null)
             return NotFound($"Sessão com ID {id} não foi encontrada.");
 

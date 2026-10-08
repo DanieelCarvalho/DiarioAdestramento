@@ -9,6 +9,8 @@ public class Local
     public double Latitude { get; set; }
     public double Longitude { get; set; }
     public TipoDoLocal? TipoDoLocal { get; set; }
+    public string AdestradorId { get; set; } = string.Empty;
+
     public string? Obs { get; set; }
     public ICollection<SessaoTreino>? Sessao{ get; set; }
 }

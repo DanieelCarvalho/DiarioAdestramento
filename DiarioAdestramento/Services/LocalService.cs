@@ -15,19 +15,21 @@ public class LocalService : ILocalService
         _repository = repository;
     }
 
-    public async Task<IEnumerable<LocalResponseDTO>> GetAllLocaisAsync()
+    public async Task<IEnumerable<LocalResponseDTO>> GetTodosDoAdestradorAsync(string adestradorId)
     {
-        var locais = await _repository.GetAllAsync();
+        var locais = await _repository.GetTodosDoAdestradorAsync(adestradorId);
         if (locais == null) return null;
+        
 
         var locaisDTO = locais.ToLocalResponseDTOList();
 
         return locaisDTO;
 
     }
-    public async Task<(IEnumerable<LocalResponseDTO> items, PaginationMetadata metadata)> GetPaginateLocaisAsync(LocalParameters parameters)
+    public async Task<(IEnumerable<LocalResponseDTO> items, PaginationMetadata metadata)> GetPaginateLocaisAsync(
+           LocalParameters parameters, string adestradorId)
     {
-        var locais = await _repository.GetLocaisAsync(parameters);
+        var locais = await _repository.GetLocaisAsync(parameters, adestradorId);
 
         var locaisDTO = locais.ToLocalResponseDTOList();
 
@@ -44,33 +46,44 @@ public class LocalService : ILocalService
         return(locaisDTO, metadata);
 
     }
-    public async Task<LocalResponseDTO> GetByIdLocalAsync(int id)
-    {
-        var local = await _repository.GetAsync(l => l.Id == id);
-        var localDTO = local.ToLocalResponseDTO();
-        return localDTO;
-    }
+  
 
-    public async Task<LocalResponseDTO> CreatedLocalAsync(LocalCreatedDTO localCreated)
+    public async Task<LocalResponseDTO> CreatedLocalAsync(LocalCreatedDTO localCreated, string adestradorId)
     {
         var local = localCreated.ToLocal();
+        local.AdestradorId = adestradorId;
         await _repository.AddAsync(local);
-        var createdLocalDTO = local.ToLocalCreatedDTO();
+        
 
-        return createdLocalDTO;
+        return local.ToLocalCreatedDTO();
     }
 
-    public async Task<LocalResponseDTO> UpdateLocalAsync(LocalUpdateRequestDTO localDTO)
+    public async Task<LocalResponseDTO> UpdateLocalAsync(LocalUpdateRequestDTO localDTO, 
+                                                         string adestradorId)
     {
+        var localExistente = await _repository.GetPorIdEAdestradorAsync(localDTO.Id, adestradorId);
+        if (localExistente == null)
+        {
+            throw new Exception("Local não encontrado ou não pertence ao adestrador.");
+        }
+
         var local = localDTO.ToLocalUpdadte();
+
+        local.AdestradorId = adestradorId;
         var localAtualizado = await _repository.UpdateAsync(local);
+
 
         var localAtualizadoDTO = localAtualizado.ToLocalResponseDTO();
         return localAtualizadoDTO;
 
     }
-    public async Task<LocalResponseDTO> DeleteLocalAsync(int id)
+    public async Task<LocalResponseDTO> DeleteLocalAsync(int id, string adestradorId)
     {
+        var localExistente = await _repository.GetPorIdEAdestradorAsync(id, adestradorId);
+        if (localExistente == null)
+        {
+            throw new Exception("Local não encontrado ou não pertence ao adestrador.");
+        }
         var local = await _repository.GetAsync(l => l.Id == id);
 
         var LocalExcluido = await _repository.DeleteAsync(local);
@@ -80,4 +93,11 @@ public class LocalService : ILocalService
 
     }
 
+    public async Task<LocalResponseDTO> GetPorIdEAdestradorAsync(int id, string adestradorId)
+    {
+       var local = await _repository.GetPorIdEAdestradorAsync(id, adestradorId);
+        if(local is null) return null;
+
+        return local.ToLocalResponseDTO();
+    }
 }

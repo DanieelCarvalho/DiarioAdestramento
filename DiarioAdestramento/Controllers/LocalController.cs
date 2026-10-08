@@ -6,6 +6,7 @@ using DiarioAdestramento.Repositories.Interfaces;
 using DiarioAdestramento.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace DiarioAdestramento.Controllers;
 
@@ -16,6 +17,8 @@ public class LocalController : ControllerBase
 {
    
     private readonly ILocalService _localService;
+    private string AdestradorId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
 
     public LocalController(ILocalService localService)
     {
@@ -26,7 +29,7 @@ public class LocalController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<LocalUpdateResponseDTO>>> GetAll()
     {
-        var locais = await _localService.GetAllLocaisAsync();
+        var locais = await _localService.GetTodosDoAdestradorAsync(AdestradorId);
 
         if (locais is null)
         {
@@ -42,7 +45,7 @@ public class LocalController : ControllerBase
     {
 
 
-      var (itens, metadata) = await _localService.GetPaginateLocaisAsync(locaisParameters);
+      var (itens, metadata) = await _localService.GetPaginateLocaisAsync(locaisParameters, AdestradorId);
 
  
         Response.Headers.Append("X-Pagination", System.Text.Json.JsonSerializer.Serialize(metadata));
@@ -56,7 +59,7 @@ public class LocalController : ControllerBase
         
         if (id <= 0 || id == null) return BadRequest("Id inválido.");
 
-        var local = await _localService.GetByIdLocalAsync(id);
+        var local = await _localService.GetPorIdEAdestradorAsync(id, AdestradorId);
 
 
         if (local is null) return NotFound($"Local com id {id} não encontrado.");
@@ -69,7 +72,7 @@ public class LocalController : ControllerBase
     public async Task<ActionResult<LocalCreatedDTO>> Post(LocalCreatedDTO localDTO)
     {
         if (localDTO is null) return BadRequest("Dados inválidos.");
-        var local =await _localService.CreatedLocalAsync(localDTO);
+        var local =await _localService.CreatedLocalAsync(localDTO, AdestradorId);
        
         return CreatedAtAction(nameof(GetById), new { id = local.Id }, local);
     }
@@ -80,7 +83,7 @@ public class LocalController : ControllerBase
         if (id <= 0 || id == null) return BadRequest("Id inválido.");
         if (localDTO is null) return BadRequest("Dados inválidos.");
 
-        var local =  await _localService.UpdateLocalAsync(localDTO);
+        var local =  await _localService.UpdateLocalAsync(localDTO, AdestradorId);
         if (local is null) return NotFound($"Local com Id {id} não foi encontrado");
 
 
@@ -93,7 +96,7 @@ public class LocalController : ControllerBase
     public async Task<ActionResult> Delete(int id)
     {
         if (id <= 0 || id == null) return BadRequest("Id inválido.");
-        var localDeletado = await _localService.DeleteLocalAsync(id);
+        var localDeletado = await _localService.DeleteLocalAsync(id, AdestradorId);
         if (localDeletado is null) return NotFound($"Local com id {id} não encontrado.");
 
    

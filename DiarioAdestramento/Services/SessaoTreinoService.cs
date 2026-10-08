@@ -29,9 +29,9 @@ public class SessaoTreinoService : ISessaoTreinoService
     }
 
     public async Task<(IEnumerable<SessaoTreinoResponseDTO> items, PaginationMetadata metadata)> GetAllSessoesAsync(
-        SessoesParameters parametros)
+        SessoesParameters parametros, string adestradorId)
     {
-        var sessoes = await _sessaoTreinoRepository.GetAllComDetalhesAsync(parametros);
+        var sessoes = await _sessaoTreinoRepository.GetAllComDetalhesAsync(parametros, adestradorId);
         var sessoesDTO = sessoes.ToSessaoTreinoResponseDTOList();
 
         var metadata = new PaginationMetadata
@@ -47,24 +47,27 @@ public class SessaoTreinoService : ISessaoTreinoService
         return (sessoesDTO, metadata);
     }
 
-    public async Task<SessaoTreinoResponseDTO?> GetSessaoByIdAsync(int id)
+    public async Task<SessaoTreinoResponseDTO?> GetSessaoByIdAsync(int id, string adestradorId)
     {
-        var sessao = await _sessaoTreinoRepository.GetComDetalhesAsync(id);
+        var sessao = await _sessaoTreinoRepository.GetComDetalhesAsync(id, adestradorId);
         if (sessao is null)
+            return null;
+
+        if (sessao.Cachorro is null || sessao.Cachorro.AdestradorId != adestradorId)
             return null;
 
         return sessao.ToSessaoTreinoResponseDTO();
     }
 
     public async Task<(CachorroComSessoesResponseDTO? cachorro, PaginationMetadata? metadata)> GetSessoesByCachorroIdAsync(
-        int cachorroId, SessoesParameters parametros)
+        int cachorroId, SessoesParameters parametros, string adestradorId)
     {
-        var cachorro = await _cachorroRepository.GetAsync(c => c.Id == cachorroId);
+        var cachorro = await _cachorroRepository.GetAsync(c => c.Id == cachorroId && c.AdestradorId == adestradorId);
         if (cachorro is null)
             return (null, null);
 
         var sessoesPaginadas = await _sessaoTreinoRepository.GetPorCachorroAsync(
-            cachorroId, parametros.PageNumber, parametros.PageSize);
+            cachorroId, adestradorId, parametros.PageNumber, parametros.PageSize);
 
         var metadata = new PaginationMetadata
         {
@@ -80,20 +83,22 @@ public class SessaoTreinoService : ISessaoTreinoService
         return (cachorroDTO, metadata);
     }
 
-    public async Task<(SessaoTreinoResponseDTO? sessao, string? erro)> CreateSessaoAsync(CriarSessaoTreinoDto dto)
+    public async Task<(SessaoTreinoResponseDTO? sessao, string? erro)> CreateSessaoAsync(CriarSessaoTreinoDto dto, string adestradorId)
     {
         var duracao = dto.HoraFim - dto.HoraInicio;
         if (duracao.TotalMinutes <= 0 || duracao.TotalMinutes > 60)
             return (null, "A sessão de treino deve ter entre 1 e 60 minutos.");
 
-        var local = await _localRepository.GetAsync(l => l.Id == dto.LocalId);
+        var cachorro = await _cachorroRepository.GetAsync(c => c.Id == dto.CachorroId && c.AdestradorId == adestradorId);
+        if (cachorro is null)
+            return (null, "Cachorro inválido: não encontrado ou não pertence a este adestrador.");
+
+        var local = await _localRepository.GetAsync(l => l.Id == dto.LocalId && l.AdestradorId == adestradorId);
         if (local is null)
-            return (null, "Local informado não existe.");
+            return (null, "Local informado não existe ou não pertence a este adestrador.");
 
         var sessao = dto.ToSessaoTreino();
 
-        // Orquestração do clima agora mora aqui no Service, não no Repository.
-        // O Repository só recebe a entidade já pronta pra persistir.
         var dataHoraInicio = sessao.Data.Date + sessao.HoraInicio;
         var climaInicio = await _climaService.ObterClimaHistoricoAsync(
             local.Latitude, local.Longitude, dataHoraInicio);
@@ -126,15 +131,14 @@ public class SessaoTreinoService : ISessaoTreinoService
             });
         }
 
-        // Persistência pura — reaproveita o AddAsync genérico herdado de Repository<T>
         await _sessaoTreinoRepository.AddAsync(sessao);
 
         return (sessao.ToSessaoTreinoResponseDTO(), null);
     }
 
-    public async Task<SessaoTreinoResponseDTO?> UpdateSessaoAsync(int id, UpdateSessaoTreinoDTO dto)
+    public async Task<SessaoTreinoResponseDTO?> UpdateSessaoAsync(int id, UpdateSessaoTreinoDTO dto, string adestradorId)
     {
-        var sessao = await _sessaoTreinoRepository.GetAsync(s => s.Id == id);
+        var sessao = await _sessaoTreinoRepository.GetAsync(s => s.Id == id && s.Cachorro!.AdestradorId == adestradorId);
         if (sessao is null)
             return null;
 
@@ -147,9 +151,9 @@ public class SessaoTreinoService : ISessaoTreinoService
         return sessaoAtualizada.ToSessaoTreinoResponseDTO();
     }
 
-    public async Task<SessaoTreinoResponseDTO?> DeleteSessaoAsync(int id)
+    public async Task<SessaoTreinoResponseDTO?> DeleteSessaoAsync(int id, string adestradorId)
     {
-        var sessao = await _sessaoTreinoRepository.GetAsync(s => s.Id == id);
+        var sessao = await _sessaoTreinoRepository.GetAsync(s => s.Id == id && s.Cachorro!.AdestradorId == adestradorId);
         if (sessao is null)
             return null;
 

@@ -6,11 +6,14 @@ namespace DiarioAdestramento.Repositories.Interfaces;
 public interface ISessaoTreinoRepository : IRepository<SessaoTreino>
 {
     
-    Task<SessaoTreino?> GetComDetalhesAsync(int id);
+    Task<SessaoTreino?> GetComDetalhesAsync(int id, string adestradorId);
 
-    Task<PagedList<SessaoTreino>> GetAllComDetalhesAsync(SessoesParameters parametros);
+    Task<PagedList<SessaoTreino>> GetAllComDetalhesAsync(SessoesParameters parametros, string adestradorId);
 
 
-    Task<PagedList<SessaoTreino>> GetPorCachorroAsync(int cachorroId,int pageNum, int pageSize);
+    Task<PagedList<SessaoTreino>> GetPorCachorroAsync(int cachorroId,
+                                                                   string adestradorId,
+                                                                   int pageNum,
+                                                                   int pageSize);
 
 }
