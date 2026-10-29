@@ -1,4 +1,5 @@
 ﻿using DiarioAdestramento.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,4 +14,21 @@ public class AppDbContext : IdentityDbContext
     public DbSet<Local> Locais { get; set; } = null!;
     public DbSet<SessaoTreino> SessoesTreino { get; set; } = null!;
     public DbSet<RegistroClima> RegistrosClima { get; set; } = null!;
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+
+        builder.Entity<Cachorro>()
+    .HasOne<IdentityUser>()
+    .WithMany()
+    .HasForeignKey(c => c.AdestradorId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Local>()
+            .HasOne<IdentityUser>()
+            .WithMany()
+            .HasForeignKey(l => l.AdestradorId)
+            .OnDelete(DeleteBehavior.Restrict);
+    }
 }

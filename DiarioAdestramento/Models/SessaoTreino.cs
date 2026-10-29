@@ -11,6 +11,8 @@ public class SessaoTreino
     public Cachorro? Cachorro { get; set; }
     public int LocalId { get; set; }
     public Local? Local { get; set; }
+
+    [Column(TypeName = "date")]
     public DateTime Data { get; set; }
     public TimeSpan HoraInicio { get; set; }
     public TimeSpan HoraFim { get; set; }
