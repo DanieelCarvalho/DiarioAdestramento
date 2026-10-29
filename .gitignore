@@ -5,6 +5,8 @@
 
 # Arquivos de banco de dados
 *.db
+*.db-shm
+*.db-wal
 *.sqlite
 *.sqlite3
 

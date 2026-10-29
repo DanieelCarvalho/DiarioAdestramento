@@ -63,9 +63,9 @@ public static class ServiceCollectionExtensions
 
     public static WebApplicationBuilder AddPersistence(this WebApplicationBuilder builder)
     {
-        var conectionString = builder.Configuration.GetConnectionString("SqliteConnectionString");
+        var conectionString = builder.Configuration.GetConnectionString("DefaultConnection");
         builder.Services.AddDbContext<AppDbContext>(options =>
-              options.UseSqlite(conectionString));
+              options.UseNpgsql(conectionString));
 
         builder.Services.AddIdentityCore<IdentityUser>()
                         .AddEntityFrameworkStores<AppDbContext>()
