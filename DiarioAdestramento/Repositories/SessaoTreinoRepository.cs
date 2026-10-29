@@ -36,13 +36,7 @@ public class SessaoTreinoRepository : Repository<SessaoTreino>, ISessaoTreinoRep
                                                               parametros.PageSize);
     }
 
-    public async Task<SessaoTreino?> GetPorIdEAdestradorAsync(int id, string adestradorId)
-    {
-        // Sem AsNoTracking: usada em Update/Delete, onde a entidade precisa continuar rastreada.
-        return await _context.Set<SessaoTreino>()
-            .Include(s => s.Cachorro)
-            .FirstOrDefaultAsync(s => s.Id == id && s.Cachorro!.AdestradorId == adestradorId);
-    }
+ 
 
     public async Task<PagedList<SessaoTreino>> GetPorCachorroAsync(int cachorroId,
                                                                    string adestradorId,
