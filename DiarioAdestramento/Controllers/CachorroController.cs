@@ -106,4 +106,24 @@ public class CachorroController : ControllerBase
         return Ok(cachorroExcluidoDTO);
     }
 
+    [HttpPut("{id:int}/foto")]
+    [RequestSizeLimit(3 * 1024 * 1024)]
+    public async Task<IActionResult> UploadFoto(int id, IFormFile arquivo)
+    {
+        await using var stream = arquivo.OpenReadStream();
+        var (ok, erro) = await _cachorroService.SalvarFotoAsync(id, stream, arquivo.Length, AdestradorId);
+        return ok ? NoContent() : BadRequest(erro);
+    }
+
+    [HttpGet("{id:int}/foto")]
+    public async Task<IActionResult> GetFoto(int id)
+    {
+        var (foto, tipo) = await _cachorroService.ObterFotoAsync(id, AdestradorId);
+        return foto is null || tipo is null ? NotFound() : File(foto, tipo);
+    }
+
+    [HttpDelete("{id:int}/foto")]
+    public async Task<IActionResult> DeleteFoto(int id) =>
+        await _cachorroService.ExcluirFotoAsync(id, AdestradorId) ? NoContent() : NotFound();
+
 }

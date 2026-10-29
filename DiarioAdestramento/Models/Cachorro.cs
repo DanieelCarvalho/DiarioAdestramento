@@ -10,6 +10,8 @@ public class Cachorro
 
     public string Nome { get; set; } = string.Empty;
 
+    public byte[]? Foto { get; set; }
+
     public string? Raca { get; set; }
 
     public string AdestradorId { get; set; } = string.Empty;

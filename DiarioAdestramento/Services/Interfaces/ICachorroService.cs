@@ -19,5 +19,8 @@ public interface ICachorroService
 
     Task<CachorroResponseDTO?> DeleteCachorroAsync(int id, string adestradorId);
 
+    Task<(bool ok, string? erro)> SalvarFotoAsync(int id, Stream conteudo, long tamanho, string adestradorId);
+    Task<(byte[]? foto, string? tipo)> ObterFotoAsync(int id, string adestradorId);
+    Task<bool> ExcluirFotoAsync(int id, string adestradorId);
 
 }
