@@ -30,5 +30,10 @@ public class AppDbContext : IdentityDbContext
             .WithMany()
             .HasForeignKey(l => l.AdestradorId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<SessaoTreino>()
+    .HasOne(s => s.RegistroClima)
+    .WithOne(r => r.Sessao)
+    .HasForeignKey<RegistroClima>(r => r.SessaoTreinoId);
     }
 }

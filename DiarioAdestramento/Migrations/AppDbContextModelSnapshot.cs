@@ -100,9 +100,6 @@ namespace DiarioAdestramento.Migrations
                     b.Property<string>("CondicaoTempo")
                         .HasColumnType("text");
 
-                    b.Property<int?>("Momento")
-                        .HasColumnType("integer");
-
                     b.Property<double?>("Precipitacao")
                         .HasColumnType("double precision");
 
@@ -117,7 +114,8 @@ namespace DiarioAdestramento.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SessaoTreinoId");
+                    b.HasIndex("SessaoTreinoId")
+                        .IsUnique();
 
                     b.ToTable("RegistrosClima");
                 });
@@ -383,8 +381,8 @@ namespace DiarioAdestramento.Migrations
             modelBuilder.Entity("DiarioAdestramento.Models.RegistroClima", b =>
                 {
                     b.HasOne("DiarioAdestramento.Models.SessaoTreino", "Sessao")
-                        .WithMany("RegistrosClima")
-                        .HasForeignKey("SessaoTreinoId")
+                        .WithOne("RegistroClima")
+                        .HasForeignKey("DiarioAdestramento.Models.RegistroClima", "SessaoTreinoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -473,7 +471,7 @@ namespace DiarioAdestramento.Migrations
 
             modelBuilder.Entity("DiarioAdestramento.Models.SessaoTreino", b =>
                 {
-                    b.Navigation("RegistrosClima");
+                    b.Navigation("RegistroClima");
                 });
 #pragma warning restore 612, 618
         }

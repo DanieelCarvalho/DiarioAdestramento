@@ -18,7 +18,7 @@ public class SessaoTreinoResponseDTO
     public string? RecomepensasUtilizadas { get; set; }
     public TempoResposta? TempoResposta { get; set; }
     public string? Obs { get; set; }
-    public ICollection<RegistroClima>? RegistrosClima { get; set; } 
+    public RegistroClimaResumoDTO? RegistroClima { get; set; } 
   
     [NotMapped]
     public TimeSpan Duracao => HoraFim - HoraInicio;

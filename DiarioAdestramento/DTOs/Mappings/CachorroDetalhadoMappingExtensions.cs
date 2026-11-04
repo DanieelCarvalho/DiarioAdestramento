@@ -35,14 +35,13 @@ public static class CachorroDetalhadoMappingExtensions
                         Id = s.Local.Id,
                         Nome = s.Local.Nome
                     },
-                    RegistrosClima = s.RegistrosClima?
-                        .Select(r => new RegistroClimaResumoDTO
-                        {
-                            Momento = r.Momento,
-                            TemperaturaCelsius = r.TemperaturaCelsius,
-                            CondicaoTempo = r.CondicaoTempo
-                        })
-                        .ToList() ?? new List<RegistroClimaResumoDTO>()
+                    RegistroClima = s.RegistroClima is null ? null : new RegistroClimaResumoDTO
+                    {
+                        TemperaturaCelsius = s.RegistroClima.TemperaturaCelsius,
+                        CondicaoTempo = s.RegistroClima.CondicaoTempo,
+                        VelocidadeDeVento = s.RegistroClima.VelocidadeDeVento,
+                        Precipitacao = s.RegistroClima.Precipitacao
+                    }
                 })
                 .ToList()
         };

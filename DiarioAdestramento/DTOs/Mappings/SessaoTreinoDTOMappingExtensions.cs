@@ -26,8 +26,14 @@ public static class SessaoTreinoDTOMappingExtensions
             RecomepensasUtilizadas = sessao.RecomepensasUtilizadas,
             TempoResposta = sessao.TempoResposta,
             Obs = sessao.Obs,
-            RegistrosClima = sessao.RegistrosClima,
-           
+            RegistroClima = sessao.RegistroClima is null ? null : new RegistroClimaResumoDTO
+            {
+                TemperaturaCelsius = sessao.RegistroClima.TemperaturaCelsius,
+                CondicaoTempo = sessao.RegistroClima.CondicaoTempo,
+                Precipitacao = sessao.RegistroClima.Precipitacao,
+                VelocidadeDeVento = sessao.RegistroClima.VelocidadeDeVento
+            },
+
         };
     }
 

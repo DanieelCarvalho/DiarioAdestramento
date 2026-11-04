@@ -13,7 +13,7 @@ public class SessaoResumoDTO
     public TempoResposta? TempoResposta { get; set; }
     public LocalResumoDTO? Local { get; set; }
 
-    public List<RegistroClimaResumoDTO> RegistrosClima { get; set; } = new();
+    public RegistroClimaResumoDTO? RegistroClima { get; set; } 
 
     [NotMapped]
 

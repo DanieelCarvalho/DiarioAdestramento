@@ -20,7 +20,7 @@ public class EstatisticaRepository : IEstatisticaRepository
     public async Task<IEnumerable<DesempenhoPorClimaDTO>> GetDesempenhoPorClimaAsync(int cachorroId)
     {
         var resultado = await _context.RegistrosClima
-            .Where(r => r.Momento == MomentoClima.Inicio && r.Sessao.CachorroId == cachorroId)
+           .Where(r => r.Sessao.CachorroId == cachorroId)
             .GroupBy(r => r.CondicaoTempo)
             .Select(g => new DesempenhoPorClimaDTO
             {

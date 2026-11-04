@@ -20,7 +20,7 @@ public class SessaoTreino
     public string? RecomepensasUtilizadas { get; set; }
     public  TempoResposta? TempoResposta { get; set; }
     public string? Obs { get; set; }
-    public ICollection<RegistroClima> RegistrosClima { get; set; } = new List<RegistroClima>();
+    public RegistroClima? RegistroClima { get; set; } 
 
     [NotMapped]
     public TimeSpan Duracao => HoraFim - HoraInicio;

@@ -16,7 +16,7 @@ public class SessaoTreinoRepository : Repository<SessaoTreino>, ISessaoTreinoRep
         return await _context.Set<SessaoTreino>()
             .Include(s => s.Cachorro)
             .Include(s => s.Local)
-            .Include(s => s.RegistrosClima)
+            .Include(s => s.RegistroClima)
             .AsNoTracking()
             .FirstOrDefaultAsync(s => s.Id == id && s.Cachorro!.AdestradorId == adestradorId);
     }
@@ -27,7 +27,7 @@ public class SessaoTreinoRepository : Repository<SessaoTreino>, ISessaoTreinoRep
         var query = _context.Set<SessaoTreino>()
             .Include(s => s.Cachorro)
             .Include(s => s.Local)
-            .Include(s => s.RegistrosClima)
+            .Include(s => s.RegistroClima)
             .Where(s => s.Cachorro!.AdestradorId == adestradorId)
             .AsNoTracking();
 
@@ -47,7 +47,7 @@ public class SessaoTreinoRepository : Repository<SessaoTreino>, ISessaoTreinoRep
             .Where(s => s.CachorroId == cachorroId && s.Cachorro!.AdestradorId == adestradorId)
             .Include(s => s.Cachorro)
             .Include(s => s.Local)
-            .Include(s => s.RegistrosClima)
+            .Include(s => s.RegistroClima)
             .OrderByDescending(s => s.Data)
             .AsNoTracking();
 

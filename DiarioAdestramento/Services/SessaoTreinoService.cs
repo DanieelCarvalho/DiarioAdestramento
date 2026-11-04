@@ -99,37 +99,23 @@ public class SessaoTreinoService : ISessaoTreinoService
 
         var sessao = dto.ToSessaoTreino();
 
-        var dataHoraInicio = sessao.Data.Date + sessao.HoraInicio;
-        var climaInicio = await _climaService.ObterClimaHistoricoAsync(
-            local.Latitude, local.Longitude, dataHoraInicio);
+        // Clima no meio do treino: representa melhor a sessão inteira (até 60 min)
+        var momentoClima = sessao.Data.Date + sessao.HoraInicio + duracao / 2;
+        var clima = await _climaService.ObterClimaHistoricoAsync(
+            local.Latitude, local.Longitude, momentoClima);
 
-        if (climaInicio is not null)
+        if (clima is not null)
         {
-            sessao.RegistrosClima.Add(new RegistroClima
+            sessao.RegistroClima = new RegistroClima
             {
-                Momento = MomentoClima.Inicio,
-                TemperaturaCelsius = climaInicio.TemperaturaCelsius,
-                CondicaoTempo = climaInicio.CondicaoTempo,
-                Precipitacao = climaInicio.Precipitacao,
-                VelocidadeDeVento = climaInicio.VelocidadeVento
-            });
+                TemperaturaCelsius = clima.TemperaturaCelsius,
+                CondicaoTempo = clima.CondicaoTempo,
+                Precipitacao = clima.Precipitacao,
+                VelocidadeDeVento = clima.VelocidadeVento
+            };
         }
 
-        var dataHoraFim = sessao.Data.Date + sessao.HoraFim;
-        var climaFim = await _climaService.ObterClimaHistoricoAsync(
-            local.Latitude, local.Longitude, dataHoraFim);
-
-        if (climaFim is not null)
-        {
-            sessao.RegistrosClima.Add(new RegistroClima
-            {
-                Momento = MomentoClima.Fim,
-                TemperaturaCelsius = climaFim.TemperaturaCelsius,
-                CondicaoTempo = climaFim.CondicaoTempo,
-                Precipitacao = climaFim.Precipitacao,
-                VelocidadeDeVento = climaFim.VelocidadeVento
-            });
-        }
+        await _sessaoTreinoRepository.AddAsync(sessao);
 
         await _sessaoTreinoRepository.AddAsync(sessao);
 
