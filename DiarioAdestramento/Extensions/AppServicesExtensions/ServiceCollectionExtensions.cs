@@ -16,6 +16,7 @@ public static class ServiceCollectionExtensions
 
     public static WebApplicationBuilder AddApiSwagger(this WebApplicationBuilder builder)
     {
+        builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(options =>
         {
             options.SwaggerDoc("v1", new OpenApiInfo
