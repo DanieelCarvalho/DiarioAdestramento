@@ -4,6 +4,7 @@ using DiarioAdestramento.Models;
 using DiarioAdestramento.Pagination;
 using DiarioAdestramento.Repositories.Interfaces;
 using DiarioAdestramento.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -13,6 +14,7 @@ namespace DiarioAdestramento.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Produces("application/json")]
+[Authorize]
 public class LocalController : ControllerBase
 {
    

@@ -14,7 +14,7 @@ builder.AddApiSwagger()
 
 var app = builder.Build();
 
-app.UseExceptionHandling(app.Environment)
+app.UseExceptionHandling()
     .UseSwaggerMiddleware()
     .UseAppCors();
 

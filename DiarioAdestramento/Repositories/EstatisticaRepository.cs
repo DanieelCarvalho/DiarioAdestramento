@@ -17,11 +17,10 @@ public class EstatisticaRepository : IEstatisticaRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<DesempenhoPorClimaDTO>> GetDesempenhoPorClimaAsync(int cachorroId)
+    public async Task<IEnumerable<DesempenhoPorClimaDTO>> GetDesempenhoPorClimaAsync(int cachorroId, string adestradorId)
     {
         var resultado = await _context.RegistrosClima
-           .Where(r => r.Sessao.CachorroId == cachorroId)
-            .GroupBy(r => r.CondicaoTempo)
+.Where(r => r.Sessao!.CachorroId == cachorroId && r.Sessao.Cachorro!.AdestradorId == adestradorId).GroupBy(r => r.CondicaoTempo)
             .Select(g => new DesempenhoPorClimaDTO
             {
                 Condicao = g.Key,
@@ -37,10 +36,10 @@ public class EstatisticaRepository : IEstatisticaRepository
         return resultado;
     }
 
-    public async Task<IEnumerable<DesempenhoPorLocalDTO>> GetDesempenhoPorLocalAsync(int cachorroId)
+    public async Task<IEnumerable<DesempenhoPorLocalDTO>> GetDesempenhoPorLocalAsync(int cachorroId, string adestradorId)
     {
         return await _context.Set<SessaoTreino>()
-            .Where(s => s.CachorroId == cachorroId)
+            .Where(s => s.CachorroId == cachorroId && s.Cachorro!.AdestradorId == adestradorId)
             .GroupBy(s => new { s.Local!.Nome, s.Local!.TipoDoLocal })
             .Select(g => new DesempenhoPorLocalDTO
             {
@@ -58,10 +57,12 @@ public class EstatisticaRepository : IEstatisticaRepository
     }
 
 
-    public async Task<IEnumerable<EvolucaoComandoDTO>> GetEvolucaoPorComandoAsync(int cachorroId, string comando)
+    public async Task<IEnumerable<EvolucaoComandoDTO>> GetEvolucaoPorComandoAsync(int cachorroId, string comando,string adestradorId )
     {
         return await _context.Set<SessaoTreino>()
-            .Where(s => s.CachorroId == cachorroId && s.OqueFoiTreinado == comando)
+            .Where(s => s.CachorroId == cachorroId 
+                   && s.Cachorro!.AdestradorId == adestradorId 
+                   && s.OqueFoiTreinado == comando)
             .OrderBy(s => s.Data)
             .Select(s => new EvolucaoComandoDTO
             {

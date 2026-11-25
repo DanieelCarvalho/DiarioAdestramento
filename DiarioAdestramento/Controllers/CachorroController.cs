@@ -47,18 +47,11 @@ public class CachorroController : ControllerBase
         return Ok(itens);
     }
 
-    [HttpGet("{id:int}")]
+    [HttpGet("{id:int:min(1)}")]
     public async Task<ActionResult<CachorroResponseDTO>> GetById(int id)
     {
-        if (id <= 0)
-            return BadRequest("Id inválido");
-
         var cachorro = await _cachorroService.GetCachorroByIdAsync(id, AdestradorId);
-
-        if (cachorro is null)
-            return NotFound($"Cachorro com ID {id} não foi encontrado");
-       
-
+        
         return Ok(cachorro);
      }
     

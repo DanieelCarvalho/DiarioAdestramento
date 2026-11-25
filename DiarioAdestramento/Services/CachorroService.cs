@@ -5,6 +5,7 @@ using DiarioAdestramento.Pagination;
 using DiarioAdestramento.Repositories.Interfaces;
 using DiarioAdestramento.Services.Interfaces;
 using System.Text.Json;
+using DiarioAdestramento.Exceptions;
 
 namespace DiarioAdestramento.Services;
 
@@ -53,11 +54,11 @@ public class CachorroService : ICachorroService
         return (cachorrosDTO, metadata);
     }
 
-    public async Task<CachorroResponseDTO?> GetCachorroByIdAsync(int id, string adestradorId)
+    public async Task<CachorroResponseDTO> GetCachorroByIdAsync(int id, string adestradorId)
     {
-        var cachorro = await _cachorroRepository.GetPorIdEAdestradorAsync(id, adestradorId);
-        if (cachorro is null)
-            return null;
+        var cachorro = await _cachorroRepository.GetPorIdEAdestradorAsync(id, adestradorId) ??
+                       throw new NaoEncontradoException("Cachorro não encontrado");
+       
 
         return cachorro.ToCachorroResponseDTO();
     }
@@ -80,13 +81,13 @@ public class CachorroService : ICachorroService
         if (cachorroExistente is null)
             return null;
 
-        var cachorro = cachorroUpdatedDTO.ToCachorro();
-        cachorro.AdestradorId = adestradorId; 
+        cachorroExistente.Nome = cachorroUpdatedDTO.Nome;
+        cachorroExistente.Idade = cachorroUpdatedDTO.Idade;
+        cachorroExistente.Raca = cachorroUpdatedDTO.Raca;
 
-        var cachorroAtualizado = await _cachorroRepository.UpdateAsync(cachorro);
+        var cachorroAtualizado = await _cachorroRepository.UpdateAsync(cachorroExistente);
         return cachorroAtualizado.ToCachorroResponseDTO();
     }
-
 
     public async Task<CachorroResponseDTO?> DeleteCachorroAsync(int id, string adestradorId)
     {
