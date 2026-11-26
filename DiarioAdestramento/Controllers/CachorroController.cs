@@ -59,9 +59,7 @@ public class CachorroController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<CachorroResponseDTO>> Create(CachorroCreatedDTO cachorroCreatedDTO)
     {
-        if(cachorroCreatedDTO is null) 
-            return BadRequest("Dados inválidos");
-        
+      
         var cachorroDTO = await _cachorroService.CreateCachorroAsync(cachorroCreatedDTO, AdestradorId);
 
         return CreatedAtAction(nameof(GetById), new { id = cachorroDTO.Id }, cachorroDTO);
@@ -70,17 +68,8 @@ public class CachorroController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, CachorroCreatedDTO cachorroUpdatedDTO)
     {
-        if (id != cachorroUpdatedDTO.Id || id <= 0)
-            return BadRequest("Id inválido");
-
-        if (cachorroUpdatedDTO is null)
-            return BadRequest("Dados para atualização não podem ser nulos");
-
+        cachorroUpdatedDTO.Id = id;
         var cachorroAtualizado = await _cachorroService.UpdateCachorroAsync(cachorroUpdatedDTO, AdestradorId);
-
-        if (cachorroAtualizado is null)
-            return NotFound($"Cachorro com ID {id} não foi encontrado");
-        
 
         return Ok(cachorroAtualizado);
     }
@@ -88,14 +77,8 @@ public class CachorroController : ControllerBase
     [HttpDelete("{id:int}")]
     public async Task<ActionResult> Delete(int id)
     {
-        if (id <= 0)
-            return BadRequest("Id inválido");
-
         var cachorroExcluidoDTO = await _cachorroService.DeleteCachorroAsync(id, AdestradorId);
-
-        if (cachorroExcluidoDTO is null)
-            return NotFound($"Cachorro com ID {id} não foi encontrado");
-
+        
         return Ok(cachorroExcluidoDTO);
     }
 
@@ -103,20 +86,24 @@ public class CachorroController : ControllerBase
     [RequestSizeLimit(3 * 1024 * 1024)]
     public async Task<IActionResult> UploadFoto(int id, IFormFile arquivo)
     {
-        await using var stream = arquivo.OpenReadStream();
-        var (ok, erro) = await _cachorroService.SalvarFotoAsync(id, stream, arquivo.Length, AdestradorId);
-        return ok ? NoContent() : BadRequest(erro);
+        await using var stream = arquivo.OpenReadStream(); 
+        await _cachorroService.SalvarFotoAsync(id, stream, arquivo.Length, AdestradorId);
+         return NoContent();
     }
 
     [HttpGet("{id:int}/foto")]
     public async Task<IActionResult> GetFoto(int id)
     {
         var (foto, tipo) = await _cachorroService.ObterFotoAsync(id, AdestradorId);
-        return foto is null || tipo is null ? NotFound() : File(foto, tipo);
+        return  File(foto, tipo);
     }
 
     [HttpDelete("{id:int}/foto")]
-    public async Task<IActionResult> DeleteFoto(int id) =>
-        await _cachorroService.ExcluirFotoAsync(id, AdestradorId) ? NoContent() : NotFound();
+    public async Task<IActionResult> DeleteFoto(int id)
+    {
+        await _cachorroService.ExcluirFotoAsync(id, AdestradorId);
+        return NoContent();
+    }
+      
 
 }

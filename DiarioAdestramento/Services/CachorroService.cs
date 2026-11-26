@@ -1,10 +1,8 @@
 ﻿using DiarioAdestramento.DTOs;
 using DiarioAdestramento.DTOs.Mappings;
-using DiarioAdestramento.Models;
 using DiarioAdestramento.Pagination;
 using DiarioAdestramento.Repositories.Interfaces;
 using DiarioAdestramento.Services.Interfaces;
-using System.Text.Json;
 using DiarioAdestramento.Exceptions;
 
 namespace DiarioAdestramento.Services;
@@ -57,7 +55,7 @@ public class CachorroService : ICachorroService
     public async Task<CachorroResponseDTO> GetCachorroByIdAsync(int id, string adestradorId)
     {
         var cachorro = await _cachorroRepository.GetPorIdEAdestradorAsync(id, adestradorId) ??
-                       throw new NaoEncontradoException("Cachorro não encontrado");
+                       throw new NaoEncontradoException("Cachorro não encontrado.");
        
 
         return cachorro.ToCachorroResponseDTO();
@@ -67,6 +65,7 @@ public class CachorroService : ICachorroService
     public async Task<CachorroResponseDTO> CreateCachorroAsync(CachorroCreatedDTO cachorroCreatedDTO, string adestradorId)
     {
         var cachorro = cachorroCreatedDTO.ToCachorro();
+        cachorro.Id = 0;
         cachorro.AdestradorId = adestradorId; 
 
         await _cachorroRepository.AddAsync(cachorro);
@@ -75,11 +74,11 @@ public class CachorroService : ICachorroService
     }
 
 
-    public async Task<CachorroResponseDTO?> UpdateCachorroAsync(CachorroCreatedDTO cachorroUpdatedDTO, string adestradorId)
+    public async Task<CachorroResponseDTO> UpdateCachorroAsync(CachorroCreatedDTO cachorroUpdatedDTO, string adestradorId)
     {
-        var cachorroExistente = await _cachorroRepository.GetPorIdEAdestradorAsync(cachorroUpdatedDTO.Id, adestradorId);
-        if (cachorroExistente is null)
-            return null;
+        var cachorroExistente = await _cachorroRepository.GetPorIdEAdestradorAsync(cachorroUpdatedDTO.Id, adestradorId) 
+                                ?? throw new NaoEncontradoException("Cachorro não encontrado.");
+      
 
         cachorroExistente.Nome = cachorroUpdatedDTO.Nome;
         cachorroExistente.Idade = cachorroUpdatedDTO.Idade;
@@ -89,11 +88,11 @@ public class CachorroService : ICachorroService
         return cachorroAtualizado.ToCachorroResponseDTO();
     }
 
-    public async Task<CachorroResponseDTO?> DeleteCachorroAsync(int id, string adestradorId)
+    public async Task<CachorroResponseDTO> DeleteCachorroAsync(int id, string adestradorId)
     {
-        var cachorro = await _cachorroRepository.GetPorIdEAdestradorAsync(id, adestradorId);
-        if (cachorro is null)
-            return null;
+        var cachorro = await _cachorroRepository.GetPorIdEAdestradorAsync(id, adestradorId) ??
+                       throw new NaoEncontradoException("Cachorro não encontrado.");
+       
 
         var cachorroExcluido = await _cachorroRepository.DeleteAsync(cachorro);
         return cachorroExcluido.ToCachorroResponseDTO();
@@ -101,46 +100,53 @@ public class CachorroService : ICachorroService
 
 
    
-    public async Task<(bool ok, string? erro)> SalvarFotoAsync(
+    public async Task SalvarFotoAsync(
         int id, Stream conteudo, long tamanho, string adestradorId)
     {
         if (tamanho <= 0 || tamanho > TamanhoMaximo)
-            return (false, "A foto deve ter até 2 MB.");
+            throw new ValidacaoException("Foto inválida",
+            [new DetalheErro("arquivo", "tamanho_maximo_2mb")]);
 
-        var cachorro = await _cachorroRepository.GetPorIdEAdestradorAsync(id, adestradorId);
-        if (cachorro is null)
-            return (false, "Cachorro não encontrado.");
+        var cachorro = await _cachorroRepository.GetPorIdEAdestradorAsync(id, adestradorId)
+                       ?? throw new NaoEncontradoException("Cachorro não encontrado.");
+                       
+       
 
         using var ms = new MemoryStream();
         await conteudo.CopyToAsync(ms);
         var bytes = ms.ToArray();
 
         if (DetectarTipo(bytes) is null)
-            return (false, "Formato inválido. Use JPG, PNG ou WebP.");
+            throw new ValidacaoException("Foto inválida",
+                [new DetalheErro("arquivo", "formato_invalido_use_jpg_png_ou_webp")]);
 
         cachorro.Foto = bytes;
         await _cachorroRepository.UpdateAsync(cachorro);
-        return (true, null);
+       
     }
 
-    public async Task<(byte[]? foto, string? tipo)> ObterFotoAsync(int id, string adestradorId)
+    public async Task<(byte[]foto, string tipo)> ObterFotoAsync(int id, string adestradorId)
     {
-        var cachorro = await _cachorroRepository.GetPorIdEAdestradorAsync(id, adestradorId);
-        if (cachorro?.Foto is null)
-            return (null, null);
+        var cachorro = await _cachorroRepository.GetPorIdEAdestradorAsync(id, adestradorId)
+            ?? throw new NaoEncontradoException("Cachorro não encontrado.");
 
-        return (cachorro.Foto, DetectarTipo(cachorro.Foto));
+        if (cachorro.Foto is null)
+            throw new NaoEncontradoException("Cachorro não possui foto.");
+      
+        
+
+        return (cachorro.Foto, DetectarTipo(cachorro.Foto)?? "application/octet-stream");
     }
 
-    public async Task<bool> ExcluirFotoAsync(int id, string adestradorId)
+    public async Task ExcluirFotoAsync(int id, string adestradorId)
     {
-        var cachorro = await _cachorroRepository.GetPorIdEAdestradorAsync(id, adestradorId);
-        if (cachorro?.Foto is null)
-            return false;
-
+        var cachorro = await _cachorroRepository.GetPorIdEAdestradorAsync(id, adestradorId)
+            ?? throw new NaoEncontradoException("Cachorro não encontrado.");
+    
+        if (cachorro.Foto is null)
+          throw new NaoEncontradoException("Cachorro não possui foto.");
         cachorro.Foto = null;
         await _cachorroRepository.UpdateAsync(cachorro);
-        return true;
     }
 
 

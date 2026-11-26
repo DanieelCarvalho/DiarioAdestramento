@@ -15,12 +15,12 @@ public interface ICachorroService
 
     Task<CachorroResponseDTO> CreateCachorroAsync(CachorroCreatedDTO cachorroCreatedDTO, string adestradorId);
 
-    Task<CachorroResponseDTO?> UpdateCachorroAsync(CachorroCreatedDTO cachorroUpdatedDTO, string adestradorId);
+    Task<CachorroResponseDTO> UpdateCachorroAsync(CachorroCreatedDTO cachorroUpdatedDTO, string adestradorId);
 
-    Task<CachorroResponseDTO?> DeleteCachorroAsync(int id, string adestradorId);
+    Task<CachorroResponseDTO> DeleteCachorroAsync(int id, string adestradorId);
 
-    Task<(bool ok, string? erro)> SalvarFotoAsync(int id, Stream conteudo, long tamanho, string adestradorId);
-    Task<(byte[]? foto, string? tipo)> ObterFotoAsync(int id, string adestradorId);
-    Task<bool> ExcluirFotoAsync(int id, string adestradorId);
+    Task SalvarFotoAsync(int id, Stream conteudo, long tamanho, string adestradorId);
+    Task<(byte[] foto, string tipo)> ObterFotoAsync(int id, string adestradorId);
+    Task ExcluirFotoAsync(int id, string adestradorId);
 
 }
